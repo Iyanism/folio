@@ -1,0 +1,53 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+        />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>{% block title %} Folio {% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+        {% block extra_css %}{% endblock %}
+    </head>
+    <body>
+        <header class="">
+            <nav class="navbar">
+                <div class="logo">
+                    <a href="#" class="logo_title">Folio</a>
+                </div>
+                <div class="navbar_actions">
+                    {% if user.is_authenticated %}
+                    <a href="#" class="nav_user">
+                        {% if user.first_name %}
+                            {{ user.first_name }}
+                        {% else%}
+                            {{ user.email }}
+                        {% endif %} }
+                    </a>
+                    <button class="">Logout</button>
+                    {% else %}
+                    <button class="">Login</button>
+                    <button class="">Signup</button>
+                    {% endif %}
+                </div>
+            </nav>
+        </header>
+
+        <main class="">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %} {% block content %}{% endblock %}
+        </main>
+
+        <footer class="">{% block footer %}{% endblock %}</footer>
+        <script src="{% static 'js/script.js' %}"></script>
+        {% block extra_js %}{% endblock %}
+    </body>
+</html>
