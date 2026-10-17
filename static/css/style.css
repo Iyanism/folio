@@ -1,9 +1,688 @@
-*{
-    padding: 0;
-    margin: 0;
-    font-family: Inter, serif;
+/* ============================================================
+   1. Design tokens
+   ============================================================ */
+:root {
+    /* Palette */
+    --paper: #f7f6f2;
+    --paper-strong: #efeee9;
+    --ink: #191918;
+    --muted: #6d6c66;
+    --faint: #71706a;
+    --line: #d9d8d1;
+    --line-dark: #bdbcb4;
+    --acid: #d6e542;
+    --acid-pale: #edf2b6;
+    --orange: #e26b3d;
+    --blue: #426a83;
+
+    --err: #b4451d;
+
+    --color-danger-bg: #fff5f5;
+    --color-danger-border: #ffd5d5;
+    --color-danger-text: #c53030;
+
+    /* Type */
+    --serif: "Playfair Display", Georgia, serif;
+    --sans: "DM Sans", Arial, sans-serif;
+    --mono: "DM Mono", monospace;
+
+    /* Layout */
+    --max: 1280px;
+    --header-height: 72px;
+    --gutter: 34px;
+
+    /* Radii / shadow */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --shadow: 0 14px 28px rgba(25, 25, 24, 0.08);
+
+    /* Motion */
+    --ease: 0.2s ease;
 }
 
-body{
-    background: white;
+/* ============================================================
+   2. Reset & base
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    line-height: 1.15;
+    font-weight: 600;
+}
+
+p {
+    margin: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img,
+svg,
+video {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+ul,
+ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+:focus-visible {
+    outline: 3px solid var(--orange);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+::selection {
+    background: var(--acid);
+    color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ============================================================
+   3. Icons & typography helpers
+   ============================================================ */
+.icon {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.icon-fill {
+    fill: currentColor;
+    stroke: none;
+}
+
+.eyebrow {
+    color: var(--muted);
+    font: 500 11px / 1.2 var(--mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.mono {
+    font-family: var(--mono);
+}
+
+.text-link {
+    border-bottom: 1px solid currentColor;
+    font-size: 12px;
+    font-weight: 600;
+    padding-bottom: 2px;
+    transition: color var(--ease);
+}
+
+.text-link:hover {
+    color: var(--orange);
+}
+
+/* ============================================================
+   4. Site header
+   ============================================================ */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(247, 246, 242, 0.97);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    min-height: var(--header-height);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font: 600 26px / 1 var(--serif);
+    letter-spacing: -0.04em;
+    flex-shrink: 0;
+}
+
+.brand-mark {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    align-items: end;
+    width: 24px;
+    height: 24px;
+}
+
+.brand-mark i {
+    display: block;
+    height: 100%;
+    background: var(--ink);
+}
+
+.brand-mark i:nth-child(2) {
+    height: 73%;
+    background: var(--orange);
+}
+
+.brand-mark i:nth-child(3) {
+    height: 45%;
+    background: var(--acid);
+}
+
+.primary-nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-left: 26px;
+}
+
+.primary-nav a {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    transition: color var(--ease);
+}
+
+.primary-nav a:hover,
+.primary-nav a.active {
+    color: var(--ink);
+}
+
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-btn,
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 12px;
+    transition:
+        background var(--ease),
+        color var(--ease),
+        border-color var(--ease);
+}
+
+.header-btn:hover {
+    background: var(--paper-strong);
+}
+
+.header-btn.write {
+    border-color: var(--ink);
+    padding: 10px 15px;
+}
+
+.header-btn.write:hover {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.header-btn.sign-in {
+    color: var(--muted);
+}
+
+.header-btn.sign-in:hover {
+    color: var(--ink);
+}
+
+.header-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: color var(--ease);
+}
+
+.header-search:hover {
+    color: var(--ink);
+}
+
+.nav_user {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 10px;
+    max-width: 16ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color var(--ease);
+}
+
+.nav_user:hover {
+    color: var(--ink);
+}
+
+.inline-form {
+    display: inline;
+    margin: 0;
+}
+
+.icon-btn {
+    padding: 7px;
+}
+
+.menu-trigger {
+    display: none;
+}
+
+/* ============================================================
+   5. Layout shell
+   ============================================================ */
+.page-shell {
+    flex: 1;
+    width: 100%;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--gutter) 80px;
+}
+
+.site-footer {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 29px var(--gutter) 38px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    color: var(--muted);
+    font-size: 11px;
+    border-top: 1px solid var(--line);
+    width: 100%;
+}
+
+.site-footer--empty {
+    padding: 0;
+    border-top: 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 17px;
+}
+
+.footer-links a {
+    transition: color var(--ease);
+}
+
+.footer-links a:hover {
+    color: var(--ink);
+}
+
+/* ============================================================
+   6. Buttons
+   ============================================================ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        background var(--ease),
+        color var(--ease),
+        border-color var(--ease);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.btn-primary {
+    color: var(--paper);
+    background: var(--ink);
+    border-color: var(--ink);
+}
+
+.btn-primary:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.btn-outline {
+    color: var(--ink);
+    border-color: var(--line-dark);
+    background: transparent;
+}
+
+.btn-outline:hover {
+    border-color: var(--ink);
+    background: var(--paper-strong);
+}
+
+.btn-ghost {
+    color: var(--muted);
+    background: transparent;
+    border-color: transparent;
+}
+
+.btn-ghost:hover {
+    color: var(--ink);
+    background: var(--paper-strong);
+}
+
+.btn-danger {
+    color: var(--color-danger-text);
+    background: transparent;
+    border-color: var(--color-danger-border);
+}
+
+.btn-danger:hover {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger-text);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+/* ============================================================
+   7. Chips (topics / tags)
+   ============================================================ */
+.topic-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--line-dark);
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+    transition:
+        background var(--ease),
+        color var(--ease),
+        border-color var(--ease);
+}
+
+.topic-chip:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.topic-chip.active {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: var(--paper);
+}
+
+/* ============================================================
+   8. Avatars
+   ============================================================ */
+.avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-grid;
+    place-items: center;
+    color: var(--ink);
+    font: 10px var(--mono);
+    flex-shrink: 0;
+}
+
+.avatar.ava-orange {
+    background: #efaa87;
+}
+
+.avatar.ava-blue {
+    background: #afcad6;
+}
+
+.avatar.ava-yellow {
+    background: var(--acid);
+}
+
+.avatar.ava-black {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+/* ============================================================
+   9. Messages / flash
+   ============================================================ */
+.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 24px;
+}
+
+.message {
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--paper-strong);
+    font-size: 13px;
+}
+
+.message--success {
+    border-color: #c6f6d5;
+    background: #f0fff4;
+    color: #22543d;
+}
+
+.message--error,
+.message--danger {
+    border-color: var(--color-danger-border);
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.message--warning {
+    border-color: #fefcbf;
+    background: #fffff0;
+    color: #744210;
+}
+
+.message--info {
+    border-color: #bee3f8;
+    background: #ebf8ff;
+    color: #2a4365;
+}
+
+/* ============================================================
+   10. Basic form controls (page-specific forms extend these)
+   ============================================================ */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line-dark);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    transition: border-color var(--ease);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--faint);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--ink);
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+    border-color: var(--color-danger-text);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   11. Responsive
+   ============================================================ */
+@media (max-width: 960px) {
+    :root {
+        --gutter: 22px;
+    }
+
+    .primary-nav {
+        gap: 15px;
+        margin-left: 10px;
+    }
+}
+
+@media (max-width: 720px) {
+    :root {
+        --header-height: 64px;
+        --gutter: 18px;
+    }
+
+    .site-header {
+        position: relative;
+    }
+
+    .primary-nav,
+    .header-btn.sign-in,
+    .nav_user {
+        display: none;
+    }
+
+    .header-actions {
+        gap: 5px;
+    }
+
+    .header-btn.write {
+        padding: 8px 11px;
+    }
+
+    .menu-trigger {
+        display: inline-flex;
+    }
+
+    .header-search {
+        padding: 6px;
+    }
+
+    .header-search .search-label {
+        display: none;
+    }
+
+    .page-shell {
+        padding-bottom: 55px;
+    }
+
+    .site-footer {
+        display: block;
+        padding-top: 25px;
+        padding-bottom: 30px;
+    }
+
+    .footer-links {
+        margin-top: 14px;
+        flex-wrap: wrap;
+    }
 }
