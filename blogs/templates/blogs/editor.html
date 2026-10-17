@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Write a story — Folio{% endblock %}
+{% block meta_description %}Write a story on Folio.{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'blogs/css/editor.css' %}" />
+{% endblock %}
+
+{# Focus mode: no section links, no footer. #}
+{% block nav_links %}{% endblock %}
+{% block main_class %}editor-shell{% endblock %}
+{% block footer_class %}site-footer--empty{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+{# Works with or without a Django form. With one, name the fields title, subtitle and body. #}
+<form class="editor" data-editor method="post" action="">
+    {% csrf_token %}
+
+    <div class="editor-bar">
+        <div class="editor-tools" data-tools role="toolbar" aria-label="Formatting" hidden></div>
+        <div class="editor-actions">
+            <span class="editor-count" data-wc aria-live="polite"></span>
+            <button class="btn btn-outline" type="submit" name="action" value="draft" formnovalidate>Save draft</button>
+            <button class="btn btn-primary" type="submit" name="action" value="continue">Continue</button>
+        </div>
+    </div>
+
+    <div class="editor-page">
+        <p class="eyebrow">New story</p>
+
+        <label class="sr-only" for="title">Title</label>
+        <textarea class="editor-field editor-title" id="title" name="title" rows="2" maxlength="140" placeholder="Title" required>{{ form.title.value|default:"" }}</textarea>
+        {% for error in form.title.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+        <label class="sr-only" for="subtitle">Subtitle</label>
+        <textarea class="editor-field editor-subtitle" id="subtitle" name="subtitle" rows="2" maxlength="240" placeholder="A subtitle: one or two sentences that tell readers what to expect">{{ form.subtitle.value|default:"" }}</textarea>
+        {% for error in form.subtitle.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+        <hr class="editor-rule" />
+
+        <label class="sr-only" for="body">Story</label>
+        <textarea class="editor-field editor-body" id="body" name="body" rows="14" placeholder="Tell the story. Start with what you figured out, or the question you could not stop thinking about." required>{{ form.body.value|default:"" }}</textarea>
+        {% for error in form.body.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+        <details class="editor-guide">
+            <summary>Formatting guide</summary>
+            <p>Your story is written in Markdown. It is saved as plain text and shown in the same style as every other story.</p>
+            <dl>
+                <dt>## Heading</dt><dd>Section heading</dd>
+                <dt>&gt; Quote</dt><dd>Pull quote with the orange rule</dd>
+                <dt>**bold**  *italic*</dt><dd>Emphasis</dd>
+                <dt>[text](https://…)</dt><dd>Link</dd>
+                <dt>- item / 1. item</dt><dd>Bulleted or numbered list</dd>
+                <dt>`code`</dt><dd>Inline code</dd>
+                <dt>---</dt><dd>Divider</dd>
+            </dl>
+        </details>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* Optional. The form works without this: it adds auto-sizing, a word count and a formatting toolbar. */
+    (function () {
+        var form = document.querySelector("[data-editor]");
+        if (!form) return;
+        var title = form.querySelector("#title");
+        var sub = form.querySelector("#subtitle");
+        var body = form.querySelector("#body");
+        var fields = [title, sub, body];
+
+        function grow(el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+        function count() {
+            var n = (body.value.match(/\S+/g) || []).length;
+            form.querySelector("[data-wc]").textContent =
+                n ? n + (n === 1 ? " word" : " words") + " · " + Math.max(1, Math.ceil(n / 200)) + " min read" : "";
+        }
+        function fire() { body.dispatchEvent(new Event("input")); }
+
+        fields.forEach(function (el) { grow(el); el.addEventListener("input", function () { grow(el); }); });
+        body.addEventListener("input", count);
+        count();
+        window.addEventListener("resize", function () { fields.forEach(grow); });
+        title.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); sub.focus(); } });
+        sub.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); body.focus(); } });
+
+        function wrap(a, b, ph) {
+            var s = body.selectionStart, e = body.selectionEnd, sel = body.value.slice(s, e) || ph;
+            body.setRangeText(a + sel + b, s, e, "end");
+            body.setSelectionRange(s + a.length, s + a.length + sel.length);
+            body.focus(); fire();
+        }
+        function prefix(p) {
+            var v = body.value, s = body.selectionStart, e = body.selectionEnd;
+            var ls = v.lastIndexOf("\n", s - 1) + 1, le = v.indexOf("\n", e);
+            if (le < 0) le = v.length;
+            body.setRangeText(v.slice(ls, le).split("\n").map(function (x) { return p + x; }).join("\n"), ls, le, "end");
+            body.focus(); fire();
+        }
+        function link() {
+            var s = body.selectionStart, e = body.selectionEnd, sel = body.value.slice(s, e) || "link text";
+            body.setRangeText("[" + sel + "](https://)", s, e, "end");
+            var u = s + sel.length + 3;
+            body.setSelectionRange(u, u + 8);
+            body.focus(); fire();
+        }
+        var ACT = {
+            bold: function () { wrap("**", "**", "bold text"); },
+            italic: function () { wrap("*", "*", "italic text"); },
+            h2: function () { prefix("## "); },
+            quote: function () { prefix("> "); },
+            list: function () { prefix("- "); },
+            link: link,
+            code: function () { wrap("`", "`", "code"); }
+        };
+        var defs = [["B", "Bold (Ctrl+B)", "bold"], ["I", "Italic (Ctrl+I)", "italic"], ["H", "Heading", "h2"], ["Quote", "Pull quote", "quote"], ["List", "Bulleted list", "list"], ["Link", "Link (Ctrl+K)", "link"], ["Code", "Inline code", "code"]];
+        var tools = form.querySelector("[data-tools]");
+        defs.forEach(function (d) {
+            var b = document.createElement("button");
+            b.type = "button"; b.textContent = d[0]; b.title = d[1]; b.setAttribute("aria-label", d[1]);
+            b.addEventListener("click", ACT[d[2]]);
+            tools.appendChild(b);
+        });
+        tools.hidden = false;
+        body.addEventListener("keydown", function (e) {
+            if (!(e.ctrlKey || e.metaKey)) return;
+            var k = e.key.toLowerCase();
+            if (k === "b") { e.preventDefault(); ACT.bold(); }
+            else if (k === "i") { e.preventDefault(); ACT.italic(); }
+            else if (k === "k") { e.preventDefault(); ACT.link(); }
+        });
+    })();
+</script>
+{% endblock %}

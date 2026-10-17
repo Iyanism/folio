@@ -1,0 +1,231 @@
+/* ============================================================
+   Editor, step 1. Uses tokens, .btn and .eyebrow from css/style.css.
+   The writing surface mirrors the post page so the draft looks
+   like the finished story.
+   ============================================================ */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.editor-shell {
+    padding-bottom: 48px;
+}
+
+.editor {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* ---- Bar: formatting on the left, count and actions on the right ---- */
+.editor-bar {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 15;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 12px 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+}
+
+.editor-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.editor-tools[hidden] {
+    display: none;
+}
+
+.editor-tools button {
+    min-width: 38px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font: 500 13px var(--mono);
+    transition:
+        color var(--ease),
+        border-color var(--ease);
+}
+
+.editor-tools button:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.editor-count {
+    margin-right: 6px;
+    color: var(--faint);
+    font: 12px var(--mono);
+}
+
+/* ---- Writing surface ---- */
+.editor-page {
+    padding: 56px 0 40px;
+}
+
+.editor-field {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0 0 0 16px;
+    border: 0;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    resize: none;
+    overflow: hidden;
+    transition: border-color var(--ease);
+}
+
+.editor-field:focus {
+    outline: none;
+    border-color: var(--orange);
+    border-left-color: var(--orange);
+}
+
+.editor-field::placeholder {
+    color: var(--line-dark);
+}
+
+.editor-title {
+    margin-top: 18px;
+    font: 600 clamp(36px, 6.4vw, 58px) / 1.04 var(--serif);
+    letter-spacing: -0.05em;
+}
+
+.editor-subtitle {
+    margin-top: 16px;
+    color: var(--muted);
+    font: 400 19px / 1.55 var(--sans);
+}
+
+.editor-subtitle::placeholder,
+.editor-body::placeholder {
+    color: var(--faint);
+}
+
+.editor-rule {
+    margin: 32px 0 28px;
+    border: 0;
+    border-top: 1px solid var(--ink);
+}
+
+.editor-body {
+    min-height: 50vh;
+    font: 400 18px / 1.75 var(--sans);
+}
+
+.field-error {
+    margin: 8px 0 0 19px;
+    color: var(--err);
+    font-size: 13px;
+}
+
+/* ---- Guide ---- */
+.editor-guide {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.editor-guide summary {
+    cursor: pointer;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.editor-guide p {
+    margin-top: 12px;
+}
+
+.editor-guide dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 20px;
+    margin: 14px 0 0;
+}
+
+.editor-guide dt {
+    color: var(--ink);
+    font: 12px var(--mono);
+}
+
+.editor-guide dd {
+    margin: 0;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 720px) {
+    .editor-bar {
+        top: 0;
+    }
+
+    .editor-actions {
+        order: -1;
+        width: 100%;
+    }
+
+    .editor-count {
+        margin-right: auto;
+    }
+
+    .editor-tools {
+        flex-wrap: nowrap;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .editor-page {
+        padding-top: 36px;
+    }
+
+    .editor-field {
+        padding-left: 0;
+        border-left-width: 0;
+    }
+
+    .editor-field:focus {
+        border-left-color: transparent;
+        box-shadow: 0 2px 0 var(--orange);
+    }
+
+    .editor-subtitle {
+        font-size: 17px;
+    }
+
+    .editor-body {
+        font-size: 17px;
+    }
+
+    .field-error {
+        margin-left: 0;
+    }
+}
