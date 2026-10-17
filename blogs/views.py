@@ -11,3 +11,6 @@ def index(request: HttpRequest):
 def post_details(request: HttpRequest):
     return render(request, "blogs/post_details.html", {})
 
+@login_required
+def post_new(request: HttpRequest):
+    return render(request, "blogs/editor.html", {})
