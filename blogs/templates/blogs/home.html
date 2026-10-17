@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Folio — Ideas worth following{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static "blogs/css/index.css" %}"/>
+{% endblock %}
+
+{% block content %}
+    <section class="masthead" aria-labelledby="masthead-title">
+        <div>
+            <div class="eyebrow">A living index of what matters</div>
+            <h1 id="masthead-title">Ideas worth <em>following.</em></h1>
+        </div>
+        <div class="masthead-intro">
+            <p>Folio is a quieter kind of publishing platform. Clear thinking, first-hand stories, and the questions that make you look twice.</p>
+            <form class="search-field" action="#" method="get">
+                <svg class="icon"><use href="#icon-search"></use></svg>
+                <input type="search" name="q" placeholder="What are you curious about?" aria-label="Search stories" />
+                <button class="search-submit" type="submit" aria-label="Search">
+                    <svg class="icon"><use href="#icon-arrow"></use></svg>
+                </button>
+            </form>
+            <div class="search-hint">
+                Try:
+                <a href="?q=concurrency">concurrency</a> ·
+                <a href="?q=budget">budget</a> ·
+                <a href="?q=ocean">ocean</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="signal-bar" aria-label="Trending now">
+        <div class="eyebrow">In the air</div>
+        <div class="signal-track">
+            <a href="#">The new etiquette of AI</a>
+            <a href="#">A field guide to slow travel</a>
+            <a href="#">What concurrency actually means</a>
+            <a href="#">The case for smaller budgets</a>
+        </div>
+    </section>
+
+    <section id="signal" aria-labelledby="featured-title">
+        <div class="section-heading">
+            <h2 id="featured-title">A story to stay with</h2>
+            <span class="count">Editor’s pick</span>
+        </div>
+        <div class="lead-grid">
+            <article class="lead-story">
+                <div class="lead-copy">
+                    <div class="eyebrow">Science · 8 min read</div>
+                    <h3><a href="#">The quiet search for a second Earth has entered its most interesting chapter</a></h3>
+                    <p>New instruments are turning a distant flicker into a map of possibility. What astronomers are learning from the small, strange world's closest to home.</p>
+                    <div class="story-meta">
+                        <span class="author"><span class="avatar ava-orange">MS</span> Maya Sen</span>
+                        <span class="meta-dot">Oct 14</span>
+                        <button class="bookmark" type="button" aria-label="Save featured story">
+                            <svg class="icon bookmark-outline"><use href="#icon-bookmark"></use></svg>
+                            <svg class="icon bookmark-filled"><use href="#icon-filled-bookmark"></use></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="lead-art" aria-label="Abstract illustration of an exoplanet and telescope">
+                    <svg viewBox="0 0 440 300" role="img" aria-labelledby="planet-title planet-desc" preserveAspectRatio="xMidYMid slice">
+                        <title id="planet-title">A planet observed from a telescope</title>
+                        <desc id="planet-desc">Flat graphic with a bright yellow planet, a white orbital arc, and a small orange telescope silhouette against a dark field.</desc>
+                        <rect width="440" height="300" fill="#191918" />
+                        <circle cx="312" cy="101" r="88" fill="#d6e542" />
+                        <circle cx="280" cy="67" r="21" fill="#edf2b6" opacity=".75" />
+                        <path d="M-32 222C85 75 250 29 478 76" fill="none" stroke="#f7f6f2" stroke-width="1.5" />
+                        <path d="M-40 245C112 118 252 92 469 133" fill="none" stroke="#426a83" stroke-width="7" />
+                        <circle cx="84" cy="64" r="2" fill="#f7f6f2" />
+                        <circle cx="154" cy="122" r="3" fill="#e26b3d" />
+                        <circle cx="384" cy="228" r="2" fill="#f7f6f2" />
+                        <circle cx="359" cy="44" r="1.5" fill="#f7f6f2" />
+                        <g transform="translate(45 177) rotate(-13)">
+                            <path d="M22 18h65l-8 45H30Z" fill="#f7f6f2" />
+                            <path d="m83 42 35 17" stroke="#e26b3d" stroke-width="7" />
+                            <path d="m121 59 15-13" stroke="#f7f6f2" stroke-width="4" />
+                            <path d="M54 63v30M77 63v30" stroke="#f7f6f2" stroke-width="5" />
+                            <path d="M34 95h67" stroke="#e26b3d" stroke-width="5" />
+                        </g>
+                    </svg>
+                </div>
+            </article>
+            <aside class="trending-column" aria-labelledby="trending-title">
+                <h4 id="trending-title">Most read this week</h4>
+                <ol class="rank-list">
+                    <li><div><a href="#">A practical guide to having better hard conversations</a><small>RELATIONSHIPS · 6 MIN</small></div></li>
+                    <li><div><a href="#">Why your app feels slow (and what concurrency fixes)</a><small>PROGRAMMING · 9 MIN</small></div></li>
+                    <li><div><a href="#">The long way home: a night train across the Balkans</a><small>TRAVEL · 11 MIN</small></div></li>
+                </ol>
+            </aside>
+        </div>
+    </section>
+
+    <section id="latest" aria-labelledby="latest-title">
+        <div class="section-heading">
+            <h2 id="latest-title">Keep exploring</h2>
+            <span class="count">Fresh from the community</span>
+        </div>
+        <div class="content-grid">
+            <div class="feed-column">
+                <div class="feed-tabs" role="tablist" aria-label="Story feed">
+                    <button class="feed-tab active" type="button" role="tab" aria-selected="true">For you</button>
+                    <button class="feed-tab" type="button" role="tab" aria-selected="false">Latest</button>
+                    <button class="feed-tab" type="button" role="tab" aria-selected="false">Following</button>
+                </div>
+                <div class="topic-bar" aria-label="Filter by topic">
+                    <a class="topic-chip active" href="#latest">All</a>
+                    <a class="topic-chip" href="?topic=technology#latest">Technology</a>
+                    <a class="topic-chip" href="?topic=programming#latest">Programming</a>
+                    <a class="topic-chip" href="?topic=science#latest">Science</a>
+                    <a class="topic-chip" href="?topic=travel#latest">Travel</a>
+                    <a class="topic-chip" href="?topic=life#latest">Daily life</a>
+                    <a class="topic-chip" href="?topic=controversy#latest">The case against</a>
+                    <a class="topic-chip" href="?topic=people#latest">People</a>
+                    <a class="topic-chip" href="?topic=news#latest">News</a>
+                </div>
+
+                <ul class="story-list">
+                    {% for story in stories %}
+                        <li class="story-card" data-topic="{{ story.topic_slug }}">
+                            <div class="story-copy">
+                                <div class="eyebrow">{{ story.topic }} · {{ story.read_minutes }} min read</div>
+                                <h3 class="story-title"><a href="{{ story.url }}">{{ story.title }}</a></h3>
+                                <p class="story-excerpt">{{ story.excerpt }}</p>
+                                <div class="story-meta">
+                                    <span class="author">
+                                        <span class="avatar ava-{{ story.author_avatar }}">{{ story.author_initials }}</span>
+                                        {{ story.author_name }}
+                                    </span>
+                                    <span class="meta-dot">{{ story.published_at }}</span>
+                                    <button class="bookmark" type="button" aria-label="Save story">
+                                        <svg class="icon bookmark-outline"><use href="#icon-bookmark"></use></svg>
+                                        <svg class="icon bookmark-filled"><use href="#icon-filled-bookmark"></use></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="story-visual" aria-hidden="true">
+                                {{ story.visual_svg|safe }}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="story-empty">No stories yet. Check back soon.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <aside id="topics" class="side-panel" aria-label="More from Folio">
+                <div class="side-block">
+                    <div class="eyebrow">Make your own front page</div>
+                    <h3>Topics to follow</h3>
+                    <div class="topic-cloud">
+                        <a class="topic-chip" href="?topic=technology#latest">Technology</a>
+                        <a class="topic-chip" href="?topic=programming#latest">Programming</a>
+                        <a class="topic-chip" href="?topic=science#latest">Science</a>
+                        <a class="topic-chip" href="?topic=travel#latest">Travel</a>
+                        <a class="topic-chip" href="?topic=life#latest">Daily life</a>
+                        <a class="topic-chip" href="?topic=controversy#latest">The case against</a>
+                        <a class="topic-chip" href="?topic=people#latest">People</a>
+                        <a class="topic-chip" href="?topic=news#latest">News</a>
+                    </div>
+                </div>
+                <div class="side-block">
+                    <div class="signal-note">
+                        <div class="eyebrow">Folio note / 014</div>
+                        <p>Curiosity is a practice, not a personality trait.</p>
+                        <a href="#newsletter">Get the weekly note <svg class="icon" style="width:13px;height:13px;vertical-align:middle"><use href="#icon-arrow"></use></svg></a>
+                    </div>
+                </div>
+                <div class="side-block">
+                    <div class="eyebrow">Worth knowing</div>
+                    <h3>Small ideas, big doors</h3>
+                    <ul class="side-mini-list">
+                        <li><span class="mini-number">01</span><a href="#">A better way to take notes while you read</a></li>
+                        <li><span class="mini-number">02</span><a href="#">How to ask a question that opens a room</a></li>
+                        <li><span class="mini-number">03</span><a href="#">The 20-minute reset for noisy days</a></li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section id="newsletter" class="newsletter" aria-labelledby="newsletter-title">
+        <div class="newsletter-copy">
+            <div class="eyebrow">A note, once a week</div>
+            <h2 id="newsletter-title">Leave room for wonder.</h2>
+            <p>The best of Folio, carefully edited. No noise, no daily inbox tax.</p>
+        </div>
+        <form class="newsletter-form" method="post" action="#">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Your email address" aria-label="Email address" required />
+            <button type="submit">Subscribe <svg class="icon" style="width:13px;height:13px;vertical-align:middle"><use href="#icon-arrow"></use></svg></button>
+        </form>
+    </section>
+{% endblock %}
+
+{% block footer_class %}{% endblock %}
