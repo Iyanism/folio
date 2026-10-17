@@ -1,0 +1,364 @@
+/* ============================================================
+   Post detail. Uses tokens, .btn, .eyebrow, .avatar and
+   .text-link from css/style.css
+   ============================================================ */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.post {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 0 96px;
+}
+
+/* ---- Head ---- */
+.post-title {
+    margin: 18px 0 18px;
+    font: 600 clamp(36px, 6.4vw, 58px) / 1.04 var(--serif);
+    letter-spacing: -0.05em;
+    overflow-wrap: anywhere;
+}
+
+.post-dek {
+    color: var(--muted);
+    font-size: 19px;
+    line-height: 1.55;
+}
+
+.post-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 32px;
+    padding: 20px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+}
+
+.post-author .avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 12px;
+}
+
+.post-author-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.post-author-info strong {
+    display: block;
+    font-size: 15px;
+}
+
+.post-author-info span {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.post-meta {
+    margin-top: 16px;
+    color: var(--faint);
+    font-size: 13px;
+}
+
+.post-figure {
+    margin: 36px 0 0;
+    aspect-ratio: 16 / 8;
+    background: var(--ink);
+    overflow: hidden;
+}
+
+.post-figure svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ---- Body ---- */
+.post-body {
+    padding-top: 40px;
+    font-size: 18px;
+    line-height: 1.75;
+}
+
+.post-body p {
+    margin-bottom: 26px;
+}
+
+.post-body h2 {
+    margin: 48px 0 18px;
+    font: 600 28px / 1.1 var(--serif);
+    letter-spacing: -0.04em;
+}
+
+.post-body blockquote {
+    margin: 40px 0;
+    padding: 2px 0 2px 24px;
+    border-left: 3px solid var(--orange);
+    font: 500 26px / 1.27 var(--serif);
+    letter-spacing: -0.03em;
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 34px;
+}
+
+.post-tags li {
+    padding: 7px 11px;
+    border: 1px solid var(--line-dark);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* ---- Action bar (sticks to the bottom while reading) ---- */
+.post-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--paper);
+    border-top: 1px solid var(--ink);
+}
+
+.act {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--ease);
+}
+
+.act:hover {
+    color: var(--ink);
+}
+
+.act-end {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.is-on {
+    color: var(--orange);
+}
+
+.is-on .icon {
+    fill: currentColor;
+}
+
+.share {
+    position: relative;
+}
+
+.share summary,
+.reply summary {
+    list-style: none;
+}
+
+.share summary::-webkit-details-marker,
+.reply summary::-webkit-details-marker {
+    display: none;
+}
+
+.share-panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
+    z-index: 11;
+    width: min(300px, calc(100vw - 36px));
+    padding: 14px 16px 16px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+}
+
+.share-panel a {
+    display: block;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.share-panel a:hover {
+    color: var(--orange);
+}
+
+.share-panel label {
+    display: block;
+    margin: 16px 0 8px;
+}
+
+.share-panel input {
+    font-size: 13px;
+}
+
+/* ---- Comments ---- */
+.comments {
+    padding-top: 56px;
+}
+
+.comments h2 {
+    margin-bottom: 24px;
+    font: 600 30px / 1 var(--serif);
+    letter-spacing: -0.04em;
+}
+
+.comment-form,
+.reply-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.comment-form textarea,
+.reply-form textarea {
+    min-height: 88px;
+}
+
+.comments-signin,
+.reply-signin {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.comment-list {
+    margin-top: 32px;
+}
+
+.comment {
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
+}
+
+.comment-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.comment-head .avatar {
+    width: 30px;
+    height: 30px;
+}
+
+.comment-when {
+    color: var(--faint);
+    font-size: 12px;
+}
+
+.comment-text {
+    margin: 10px 0 6px;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 2px 8px;
+    margin-left: -8px;
+}
+
+.mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--ease);
+}
+
+.mini:hover {
+    color: var(--ink);
+}
+
+.mini .icon {
+    width: 15px;
+    height: 15px;
+}
+
+.mini.is-on {
+    color: var(--orange);
+}
+
+.reply[open] {
+    flex: 1 1 100%;
+    order: 3;
+    margin: 4px 0 0 8px;
+}
+
+.reply-form,
+.reply-signin {
+    margin-top: 8px;
+}
+
+/* Replies are comments too, so they nest. The third level is flattened. */
+.replies {
+    margin: 8px 0 0 14px;
+    padding-left: 18px;
+    border-left: 1px solid var(--line-dark);
+}
+
+.replies .comment {
+    padding: 16px 0 0;
+    border-top: 0;
+}
+
+.replies .replies .replies {
+    margin-left: 0;
+    padding-left: 12px;
+}
+
+@media (max-width: 720px) {
+    .post {
+        padding: 48px 0 72px;
+    }
+
+    .post-dek {
+        font-size: 17px;
+    }
+
+    .post-body {
+        font-size: 17px;
+    }
+
+    .post-author .btn {
+        padding: 9px 12px;
+    }
+
+    .replies {
+        margin-left: 4px;
+        padding-left: 12px;
+    }
+}
