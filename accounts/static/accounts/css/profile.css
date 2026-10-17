@@ -1,0 +1,208 @@
+/* ============================================================
+   Profile page
+   Uses tokens, .btn, .eyebrow and .text-link from css/style.css
+   ============================================================ */
+
+.profile {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 0 80px;
+}
+
+/* ---- Hero: avatar beside identity, bio, tag, actions ---- */
+.profile-hero {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 36px;
+    align-items: start;
+    padding-bottom: 44px;
+    border-bottom: 1px solid var(--ink);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid;
+    place-items: center;
+    font: 600 52px / 1 var(--serif);
+    letter-spacing: -0.04em;
+    user-select: none;
+}
+
+.profile-meta {
+    min-width: 0;
+    padding-top: 4px;
+}
+
+.profile-name {
+    margin: 12px 0 6px;
+    font: 600 clamp(34px, 4.8vw, 52px) / 1 var(--serif);
+    letter-spacing: -0.045em;
+    overflow-wrap: anywhere;
+}
+
+.profile-handle {
+    color: var(--muted);
+    font: 500 13px var(--mono);
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+}
+
+.profile-bio {
+    max-width: 56ch;
+    margin-top: 22px;
+    color: var(--ink);
+    font: 400 18px / 1.6 var(--sans);
+    overflow-wrap: anywhere;
+}
+
+.profile-bio--hint {
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.profile-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.profile-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border: 1px solid var(--line-dark);
+    color: var(--muted);
+    font: 500 11px var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+/* ---- Writing section ---- */
+.profile-writing .section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 44px 0 22px;
+}
+
+.profile-writing .section-heading h2 {
+    font: 600 30px / 1 var(--serif);
+    letter-spacing: -0.04em;
+}
+
+.profile-writing .count {
+    color: var(--faint);
+    font: 11px var(--mono);
+}
+
+.profile-empty {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 38px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.profile-empty-mark {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    align-items: end;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.profile-empty-mark i {
+    display: block;
+    height: 100%;
+    background: var(--line-dark);
+}
+
+.profile-empty-mark i:nth-child(2) {
+    height: 73%;
+}
+
+.profile-empty-mark i:nth-child(3) {
+    height: 45%;
+}
+
+.profile-empty-title {
+    font: 600 24px / 1.15 var(--serif);
+    letter-spacing: -0.03em;
+}
+
+.profile-empty-text {
+    max-width: 46ch;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.profile-empty .btn {
+    margin-top: 20px;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 720px) {
+    .profile {
+        padding: 40px 0 60px;
+    }
+
+    .profile-hero {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+        padding-bottom: 34px;
+    }
+
+    .profile-avatar {
+        width: 88px;
+        height: 88px;
+        font-size: 38px;
+    }
+
+    .profile-name {
+        font-size: 34px;
+    }
+
+    .profile-bio {
+        margin-top: 18px;
+        font-size: 16px;
+    }
+
+    .profile-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .profile-writing .section-heading {
+        margin-top: 34px;
+    }
+
+    .profile-writing .section-heading h2 {
+        font-size: 26px;
+    }
+
+    .profile-empty {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 30px 0;
+    }
+}

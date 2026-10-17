@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ profile.display_name|default:profile.username }} — Folio{% endblock %}
+
+{% block meta_description %}{% if profile.bio %}{{ profile.bio|truncatechars:160 }}{% else %}Read {{ profile.username }}’s writing on Folio.{% endif %}{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/css/profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+{% with name=profile.display_name|default:profile.username %}
+{# Both URL names below are guesses. If a name does not exist, `as` leaves the variable empty and the button is simply not rendered. #}
+{% url 'profile_edit' as edit_url %}
+{% url 'write' as write_url %}
+
+<div class="profile">
+
+    <header class="profile-hero">
+        <div class="profile-avatar" aria-hidden="true">{{ name|slice:":1"|upper }}</div>
+
+        <div class="profile-meta">
+            <p class="eyebrow">
+                {% if profile.user.date_joined %}Joined {{ profile.user.date_joined|date:"F Y" }}{% else %}Folio member{% endif %}
+            </p>
+
+            <h1 class="profile-name">{{ name }}</h1>
+            <p class="profile-handle">@{{ profile.username }}</p>
+
+            {% if profile.bio %}
+                <p class="profile-bio">{{ profile.bio|linebreaksbr }}</p>
+            {% elif request.user.is_authenticated and profile.user_id == request.user.id %}
+                <p class="profile-bio profile-bio--hint">
+                    Add a short bio so readers know who you are.
+                    {% if edit_url %}<a class="text-link" href="{{ edit_url }}">Add a bio</a>{% endif %}
+                </p>
+            {% endif %}
+
+            {% if profile.gender %}
+                <div class="profile-facts">
+                    <span class="profile-tag">{{ profile.get_gender_display }}</span>
+                </div>
+            {% endif %}
+
+            <div class="profile-actions">
+                {% if request.user.is_authenticated and profile.user_id == request.user.id and edit_url %}
+                    <a class="btn btn-primary" href="{{ edit_url }}">Edit profile</a>
+                {% endif %}
+                <button
+                    class="btn btn-outline"
+                    type="button"
+                    data-copy-link
+                    data-url="{{ request.build_absolute_uri }}"
+                    aria-live="polite"
+                >Copy profile link</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="profile-writing" aria-labelledby="stories-title">
+        <div class="section-heading">
+            <h2 id="stories-title">Writing</h2>
+            <span class="count">Coming soon</span>
+        </div>
+
+        <div class="profile-empty">
+            <span class="profile-empty-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <div>
+                {% if request.user.is_authenticated and profile.user_id == request.user.id %}
+                    <p class="profile-empty-title">Your first story starts here.</p>
+                    <p class="profile-empty-text">Write down something you figured out or a question you can’t stop thinking about. It will appear on this page.</p>
+                    {% if write_url %}<a class="btn btn-primary" href="{{ write_url }}">Write a story</a>{% endif %}
+                {% else %}
+                    <p class="profile-empty-title">Nothing published yet.</p>
+                    <p class="profile-empty-text">Stories by {{ name }} will appear here.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const btn = document.querySelector("[data-copy-link]");
+        if (!btn) return;
+        const label = btn.textContent;
+
+        function done(ok) {
+            btn.textContent = ok ? "Link copied" : "Could not copy";
+            setTimeout(function () { btn.textContent = label; }, 1800);
+        }
+        btn.addEventListener("click", function () {
+            const url = btn.dataset.url || window.location.href;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+                return;
+            }
+            const t = document.createElement("textarea");
+            t.value = url;
+            t.setAttribute("readonly", "");
+            t.style.position = "fixed";
+            t.style.opacity = "0";
+            document.body.appendChild(t);
+            t.select();
+            let ok = false;
+            try { ok = document.execCommand("copy"); } catch (e) {}
+            document.body.removeChild(t);
+            done(ok);
+        });
+    })();
+</script>
+{% endblock %}
