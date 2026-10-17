@@ -7,3 +7,7 @@ from django.shortcuts import render
 def index(request: HttpRequest):
     return render(request, "blogs/home.html", {})
 
+@login_required
+def post_details(request: HttpRequest):
+    return render(request, "blogs/post_details.html", {})
+
