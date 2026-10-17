@@ -13,7 +13,7 @@ def signup(request: HttpRequest):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("profile_edit")
+            return redirect("onboarding_username")
     else:
         form = SignupForm()
 
@@ -42,3 +42,39 @@ def edit_profile(request: HttpRequest):
     return render(request, "accounts/edit_profile.html", {"form": form})
 
 
+@login_required
+def onboarding_username(request: HttpRequest):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if user_profile.username:
+        return redirect("onboarding")
+
+    if request.method == "POST":
+        form = UsernameSetupForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect("onboarding")
+    else:
+        form = UsernameSetupForm(instance=user_profile)
+
+    return render(request, "accounts/onboarding_username.html", {"form": form})
+
+@login_required
+def onboarding(request: HttpRequest):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == "POST":
+        if "skip" in request.POST:
+            user_profile.onboarding_completed = True
+            user_profile.save()
+            return redirect("home")
+        form = OnboardingForm(request.POST, instance=user_profile)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.onboarding_completed = False
+            user_profile.save()
+            return redirect("home")
+    else:
+        form = OnboardingForm(instance=user_profile)
+
+    return render(request, "accounts/onboarding.html", {"form": form})

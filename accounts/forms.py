@@ -63,3 +63,27 @@ class ProfileForm(forms.ModelForm):
             'gender': forms.Select(attrs={'class': 'gender-select'}),
         }
 
+class OnboardingForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['display_name', 'gender', 'bio']
+        widgets = {
+            'display_name': forms.TextInput(attrs={'placeholder': 'e.g. Alex Smith', 'class': 'display_name'}),
+            'bio': forms.Textarea(attrs={'placeholder': 'A short note about what you write or read...', 'class': 'bio'}),
+            'gender': forms.Select(attrs={'class': 'gender-select'}),
+        }
+
+
+class UsernameSetupForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['username']
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'e.g. alexander', 'autocomplete': 'username'}),
+        }
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if not username:
+            raise forms.ValidationError("Please enter a username")
+        return username.strip().lower()
