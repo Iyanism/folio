@@ -1,24 +1,110 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}
-    Folio | Signup
-{% endblock %}
+{% block title %}Create your account — Folio{% endblock %}
+
+{% block meta_description %}Join Folio — free to read, free to write. Set up your account in a minute.{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static "accounts/css/auth.css" %}">
-{% endblock  %}
+    <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}" />
+{% endblock %}
+
+{% block nav_links %}{% endblock %}
+
+{% block header_actions %}
+    <div class="header-actions">
+        <span class="alt">Have an account?</span>
+        <a href="{% url 'login' %}" class="header-btn write">
+            Sign in
+            <svg class="icon" style="width: 15px; height: 15px">
+                <use href="#icon-arrow"></use>
+            </svg>
+        </a>
+    </div>
+{% endblock %}
+
+{% block main_class %}page-shell--auth{% endblock %}
 
 {% block content %}
-    <div class="">
-        <form method="post" class="" novalidate>
-            {% csrf_token %}
-            {% for field in form %}
-            	<div class="">
-                    <label for="{{ field.id_for_label }}" class="">{{ field.label }}</label>
-                    {{ field }}
+<div class="auth">
+    <aside class="aside" aria-hidden="true">
+        <div class="bars"><i></i><i></i><i></i></div>
+        <div>
+            <blockquote>Write down what you figured out. Someone is wondering about it right now.</blockquote>
+            <cite>Folio</cite>
+        </div>
+    </aside>
+    <section class="pane">
+        <div class="wrap">
+            <div class="eyebrow">Join Folio</div>
+            <h1>Write what you learned. Read what others wonder.</h1>
+            <p class="lead">Free to read and free to write. It takes a minute to set up.</p>
+
+            {% if messages %}
+                {# base.html already renders messages above, but you can drop this block if you want them once #}
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="msg err" role="alert">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
                 </div>
-            {% endfor %}
-        </form>
-    </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'signup' %}" class="auth-form" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div class="inp">
+                            {{ field }}
+                            {% if field.name == "password1" or field.name == "password" %}
+                                <button
+                                    class="show"
+                                    type="button"
+                                    aria-pressed="false"
+                                    aria-label="Show password"
+                                    data-toggle-password="{{ field.id_for_label }}"
+                                >Show</button>
+                            {% endif %}
+                        </div>
+                        {% if field.errors %}
+                            <p class="err" id="{{ field.id_for_label }}-err">
+                                {% for error in field.errors %}{{ error }}{% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button class="submit" type="submit">Create account</button>
+            </form>
+
+            <p class="swap">
+                Already have an account?
+                <a class="ln" href="{% url 'login' %}">Sign in</a>
+            </p>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block footer_class %}site-footer--empty{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_js %}
+<script>
+    (() => {
+        document.querySelectorAll('[data-toggle-password]').forEach(btn => {
+            const input = document.getElementById(btn.dataset.togglePassword);
+            if (!input) return;
+            btn.addEventListener('click', () => {
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.textContent = show ? 'Hide' : 'Show';
+                btn.setAttribute('aria-pressed', show);
+            });
+        });
+    })();
+</script>
 {% endblock %}
