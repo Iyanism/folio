@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Choose your handle — Folio{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/css/onboarding.css' %}" />
+{% endblock %}
+
+{% block nav_links %}{% endblock %}
+{% block header_actions %}{% endblock %}
+
+{% block main_class %}page-shell--auth{% endblock %}
+
+{% block content %}
+<div class="auth">
+    <aside class="aside" aria-hidden="true">
+        <div class="bars"><i></i><i></i><i></i></div>
+        <div>
+            <blockquote>Your handle is your permanent home on Folio. Make it your own.</blockquote>
+            <cite>Folio Onboarding</cite>
+        </div>
+    </aside>
+    <section class="pane">
+        <div class="wrap">
+            <div class="eyebrow">Step 1 of 2</div>
+            <h1>Claim your unique username</h1>
+            <p class="lead">This will form your custom public profile URL. It cannot be changed easily later.</p>
+
+            <form method="post" action="{% url 'onboarding_username' %}" class="auth-form" novalidate>
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    <div class="inp">
+                        {{ form.username }}
+                    </div>
+                    <p class="hint">Letters, numbers, and underscores only.</p>
+                    {% if form.username.errors %}
+                        <p class="err" id="{{ form.username.id_for_label }}-err">
+                            {% for error in form.username.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <button class="submit" type="submit">Continue to profile details</button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block footer_class %}site-footer--empty{% endblock %}
+{% block footer %}{% endblock %}

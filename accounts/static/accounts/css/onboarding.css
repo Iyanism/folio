@@ -1,0 +1,242 @@
+/* ============================================================
+   Onboarding page layout & overrides (Extends auth styling pattern)
+   ============================================================ */
+
+.page-shell.page-shell--auth {
+    max-width: none;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth {
+    display: grid;
+    grid-template-columns: 1fr;
+    flex: 1;
+    min-height: 0;
+}
+
+.pane {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 44px 22px 48px;
+    min-height: 0;
+}
+
+.wrap {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Headings */
+.auth h1 {
+    margin: 14px 0 10px;
+    font: 600 clamp(32px, 5.5vw, 44px) / 1.04 var(--serif);
+    letter-spacing: -0.05em;
+}
+
+.auth .lead {
+    margin: 0 0 28px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Form fields customization */
+.field {
+    margin-bottom: 18px;
+}
+
+.field > label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.inp {
+    position: relative;
+}
+
+.inp input,
+.inp textarea,
+.inp select {
+    width: 100%;
+    border: 1px solid var(--line-dark);
+    background: var(--paper-strong);
+    padding: 12px 14px;
+    font-size: 15px;
+    outline: 0;
+    border-radius: 0;
+    transition: border-color var(--ease), background var(--ease);
+}
+
+.inp input {
+    height: 48px;
+}
+
+.inp textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.inp input:focus,
+.inp textarea:focus,
+.inp select:focus {
+    border-color: var(--ink);
+    background: #fff;
+}
+
+.inp input[aria-invalid="true"],
+.inp textarea:invalid {
+    border-color: var(--err);
+}
+
+.hint,
+.err {
+    margin: 6px 0 0;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.hint {
+    color: var(--faint);
+}
+
+.err {
+    color: var(--err);
+}
+
+.err:empty {
+    display: none;
+}
+
+/* Submit button */
+.submit {
+    width: 100%;
+    height: 50px;
+    margin-top: 8px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--ease), border-color var(--ease);
+}
+
+.submit:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+/* Skip link row */
+.skip-row {
+    margin: 22px 0 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.ln {
+    border-bottom: 1px solid currentColor;
+    font-weight: 600;
+    color: var(--ink);
+    transition: color var(--ease);
+}
+
+.ln:hover {
+    color: var(--orange);
+}
+
+/* Messages */
+.msg {
+    margin: 0 0 20px;
+    padding: 12px 14px;
+    border: 1px solid var(--ink);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.msg.err {
+    background: #f6dccf;
+    border-color: var(--orange);
+    color: var(--ink);
+}
+
+/* Dark aside side-panel */
+.aside {
+    display: none;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 64px;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+}
+
+.bars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    align-items: end;
+    height: 180px;
+    max-width: 260px;
+}
+
+.bars i {
+    display: block;
+    background: var(--paper);
+    height: 100%;
+}
+
+.bars i:nth-child(2) {
+    height: 73%;
+    background: var(--orange);
+}
+
+.bars i:nth-child(3) {
+    height: 45%;
+    background: var(--acid);
+}
+
+.aside blockquote {
+    margin: 0;
+    padding-left: 22px;
+    border-left: 3px solid var(--orange);
+    font: 500 clamp(26px, 2.6vw, 36px) / 1.2 var(--serif);
+    letter-spacing: -0.03em;
+}
+
+.aside cite {
+    display: block;
+    margin-top: 20px;
+    font: 500 11px / 1.5 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #a8a79f;
+    font-style: normal;
+}
+
+/* Responsive queries */
+@media (min-width: 960px) {
+    .auth {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .pane {
+        padding-top: 72px;
+    }
+
+    .aside {
+        display: flex;
+    }
+}
+
+@media (max-width: 720px) {
+    .pane {
+        padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+    }
+}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tell us about yourself — Folio{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/css/onboarding.css' %}" />
+{% endblock %}
+
+{% block nav_links %}{% endblock %}
+
+{% block header_actions %}
+    <div class="header-actions">
+        <form method="post" action="{% url 'onboarding' %}" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="skip" value="true" />
+            <button type="submit" class="header-btn sign-in">Skip for now</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block main_class %}page-shell--auth{% endblock %}
+
+{% block content %}
+<div class="auth">
+    <aside class="aside" aria-hidden="true">
+        <div class="bars"><i></i><i></i><i></i></div>
+        <div>
+            <blockquote>A brief bio gives readers context on why your perspective matters.</blockquote>
+            <cite>Folio Onboarding</cite>
+        </div>
+    </aside>
+    <section class="pane">
+        <div class="wrap">
+            <div class="eyebrow">Step 2 of 2</div>
+            <h1>A few optional details</h1>
+            <p class="lead">Help readers understand who you are. You can always edit this later from your settings.</p>
+
+            <form method="post" action="{% url 'onboarding' %}" class="auth-form" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <div class="inp">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                            <p class="err" id="{{ field.id_for_label }}-err">
+                                {% for error in field.errors %}{{ error }}{% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button class="submit" type="submit">Complete setup</button>
+            </form>
+
+            <div class="skip-row">
+                <form method="post" action="{% url 'onboarding' %}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="skip" value="true" />
+                    <button type="submit" class="ln" style="background:none; border:0; cursor:pointer; padding:0; font:inherit;">
+                        Skip and go to your feed
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block footer_class %}site-footer--empty{% endblock %}
+{% block footer %}{% endblock %}
