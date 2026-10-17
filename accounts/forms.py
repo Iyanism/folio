@@ -52,3 +52,14 @@ class SignupForm(UserCreationForm):
         fields = ("email",)
 
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['username','display_name', 'bio', 'gender']
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'e.g. alexander', 'autocomplete': 'username'}),
+            'display_name': forms.TextInput(attrs={'placeholder': 'e.g. Alex', 'class': 'display_name'}),
+            'bio': forms.Textarea(attrs={'placeholder': 'A short note about what you write or read...', 'class':'bio'}),
+            'gender': forms.Select(attrs={'class': 'gender-select'}),
+        }
+
