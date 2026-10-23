@@ -1,5 +1,5 @@
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 
 from accounts.models import User, UserProfile
 
@@ -46,8 +46,8 @@ class SignupForm(UserCreationForm):
         ),
         help_text="Enter the same password as before, for verification.",
     )
-    
-    class Meta(UserCreationForm.Meta):  # ty: ignore[invalid-attribute-override]
+
+    class Meta:
         model = User
         fields = ("email",)
 
@@ -55,35 +55,54 @@ class SignupForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['username','display_name', 'bio', 'gender']
+        fields = ["username", "display_name", "bio", "gender"]
         widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'e.g. alexander', 'autocomplete': 'username'}),
-            'display_name': forms.TextInput(attrs={'placeholder': 'e.g. Alex', 'class': 'display_name'}),
-            'bio': forms.Textarea(attrs={'placeholder': 'A short note about what you write or read...', 'class':'bio'}),
-            'gender': forms.Select(attrs={'class': 'gender-select'}),
+            "username": forms.TextInput(
+                attrs={"placeholder": "e.g. alexander", "autocomplete": "username"}
+            ),
+            "display_name": forms.TextInput(
+                attrs={"placeholder": "e.g. Alex", "class": "display_name"}
+            ),
+            "bio": forms.Textarea(
+                attrs={
+                    "placeholder": "A short note about what you write or read...",
+                    "class": "bio",
+                }
+            ),
+            "gender": forms.Select(attrs={"class": "gender-select"}),
         }
+
 
 class OnboardingForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['display_name', 'gender', 'bio']
+        fields = ["display_name", "gender", "bio"]
         widgets = {
-            'display_name': forms.TextInput(attrs={'placeholder': 'e.g. Alex Smith', 'class': 'display_name'}),
-            'bio': forms.Textarea(attrs={'placeholder': 'A short note about what you write or read...', 'class': 'bio'}),
-            'gender': forms.Select(attrs={'class': 'gender-select'}),
+            "display_name": forms.TextInput(
+                attrs={"placeholder": "e.g. Alex Smith", "class": "display_name"}
+            ),
+            "bio": forms.Textarea(
+                attrs={
+                    "placeholder": "A short note about what you write or read...",
+                    "class": "bio",
+                }
+            ),
+            "gender": forms.Select(attrs={"class": "gender-select"}),
         }
 
 
 class UsernameSetupForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['username']
+        fields = ["username"]
         widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'e.g. alexander', 'autocomplete': 'username'}),
+            "username": forms.TextInput(
+                attrs={"placeholder": "e.g. alexander", "autocomplete": "username"}
+            ),
         }
 
     def clean_username(self):
-        username = self.cleaned_data['username']
+        username = self.cleaned_data["username"]
         if not username:
             raise forms.ValidationError("Please enter a username")
         return username.strip().lower()

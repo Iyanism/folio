@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0002_remove_user_bio_remove_user_gender_userprofile'),
+        ("accounts", "0002_remove_user_bio_remove_user_gender_userprofile"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userprofile',
-            name='onboarding_completed',
+            model_name="userprofile",
+            name="onboarding_completed",
             field=models.BooleanField(default=False),
         ),
     ]

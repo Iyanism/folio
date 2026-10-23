@@ -6,20 +6,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0003_userprofile_onboarding_completed'),
+        ("accounts", "0003_userprofile_onboarding_completed"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='userprofile',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL),
+            model_name="userprofile",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="profile",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='userprofile',
-            name='username',
-            field=models.CharField(blank=True, max_length=30, null=True, unique=True, verbose_name='Username'),
+            model_name="userprofile",
+            name="username",
+            field=models.CharField(
+                blank=True,
+                max_length=30,
+                null=True,
+                unique=True,
+                verbose_name="Username",
+            ),
         ),
     ]
