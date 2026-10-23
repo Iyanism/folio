@@ -40,7 +40,9 @@ class UserProfile(models.Model):
         OTHERS = "O", "Others"
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    username = models.CharField("Username", max_length=30, unique=True, blank=True, null=True)
+    username = models.CharField(
+        "Username", max_length=30, unique=True, blank=True, null=True
+    )
 
     display_name = models.CharField(max_length=255, blank=True)
     gender = models.CharField(max_length=1, choices=Gender.choices, blank=True)
