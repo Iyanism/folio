@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit profile — Folio{% endblock %}
+
+{% block meta_description %}Update your Folio profile — display name, bio, and details.{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'accounts/css/edit_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile">
+
+    <header class="edit-hero">
+        <p class="eyebrow">Account settings</p>
+        <h1 class="edit-title">Edit your profile</h1>
+        <p class="edit-subtitle">
+            This is how readers will see you across Folio. Keep it short, keep it true.
+        </p>
+    </header>
+
+    <div class="edit-layout">
+
+        <form method="post" enctype="multipart/form-data" class="edit-form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="message message--error" role="alert">
+                    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+
+            {# ---- Identity ---- #}
+            <section class="edit-section" aria-labelledby="identity-title">
+                <div class="edit-section-head">
+                    <h2 id="identity-title">Identity</h2>
+                    <span class="edit-hint">How you appear to others</span>
+                </div>
+
+                <div class="edit-avatar-row">
+                    <div class="edit-avatar" aria-hidden="true">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="" />
+                        {% else %}
+                            {{ user.profile.display_name|default:user.profile.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="edit-avatar-fields">
+                        {% if form.avatar %}
+                            <label class="field">
+                                <span class="field-label">Profile photo</span>
+                                {{ form.avatar }}
+                                {% if form.avatar.help_text %}<span class="field-help">{{ form.avatar.help_text }}</span>{% endif %}
+                                {% for error in form.avatar.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                            </label>
+                        {% endif %}
+                        <p class="field-help">Square images look best. JPG or PNG, under 2 MB.</p>
+                    </div>
+                </div>
+
+                <div class="field-grid">
+                    <label class="field">
+                        <span class="field-label">Display name</span>
+                        {{ form.display_name }}
+                        {% if form.display_name.help_text %}<span class="field-help">{{ form.display_name.help_text }}</span>{% endif %}
+                        {% for error in form.display_name.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label">Username</span>
+                        {{ form.username }}
+                        {% if form.username.help_text %}<span class="field-help">{{ form.username.help_text }}</span>{% endif %}
+                        {% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                    </label>
+                </div>
+            </section>
+
+            {# ---- About you ---- #}
+            <section class="edit-section" aria-labelledby="about-title">
+                <div class="edit-section-head">
+                    <h2 id="about-title">About you</h2>
+                    <span class="edit-hint">A few lines is plenty</span>
+                </div>
+
+                <label class="field">
+                    <span class="field-label">Bio</span>
+                    {{ form.bio }}
+                    <div class="field-meta">
+                        {% if form.bio.help_text %}<span class="field-help">{{ form.bio.help_text }}</span>{% endif %}
+                        <span class="char-count" data-char-count-for="{{ form.bio.id_for_label }}"></span>
+                    </div>
+                    {% for error in form.bio.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                </label>
+
+                <div class="field-grid">
+                    {% if form.gender %}
+                        <label class="field">
+                            <span class="field-label">Gender</span>
+                            {{ form.gender }}
+                            {% for error in form.gender.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                        </label>
+                    {% endif %}
+
+                    {% if form.website %}
+                        <label class="field">
+                            <span class="field-label">Website</span>
+                            {{ form.website }}
+                            {% for error in form.website.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                        </label>
+                    {% endif %}
+                </div>
+            </section>
+
+            {# ---- Any extra fields the form grows ---- #}
+            {% for field in form %}
+                {% if field.name not in "avatar display_name username bio gender website" %}
+                    <section class="edit-section">
+                        <label class="field">
+                            <span class="field-label">{{ field.label }}</span>
+                            {{ field }}
+                            {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+                            {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                        </label>
+                    </section>
+                {% endif %}
+            {% endfor %}
+
+            <div class="edit-actions">
+                <button class="btn btn-primary" type="submit">Save changes</button>
+                <a class="btn btn-outline" href="{% url 'profile' %}">Cancel</a>
+            </div>
+        </form>
+
+        <aside class="edit-side" aria-label="Preview">
+            <div class="edit-section-head">
+                <h2>Preview</h2>
+                <span class="edit-hint">Live as you type</span>
+            </div>
+
+            <div class="preview-card">
+                <div class="avatar ava-black preview-avatar" data-preview-avatar aria-hidden="true">
+                    {{ user.profile.display_name|default:user.profile.username|slice:":1"|upper }}
+                </div>
+                <div class="preview-meta">
+                    <p class="preview-name" data-preview-name>
+                        {{ user.profile.display_name|default:user.profile.username }}
+                    </p>
+                    <p class="preview-handle">@{{ user.profile.username }}</p>
+                    <p class="preview-bio" data-preview-bio>
+                        {% if user.profile.bio %}{{ user.profile.bio }}{% else %}Your bio will appear here.{% endif %}
+                    </p>
+                    {% if user.profile.gender %}
+                        <span class="preview-tag">{{ user.profile.gender }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <p class="edit-side-note">
+                You can change these any time.
+                <a class="text-link" href="{% url 'profile' %}">View public profile</a>
+            </p>
+        </aside>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        function $(sel, root) { return (root || document).querySelector(sel); }
+        function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+        // ----- Live preview -----
+        const nameInput = $('#id_display_name');
+        const bioInput = $('#id_bio');
+        const usernameInput = $('#id_username');
+
+        const previewName = $('[data-preview-name]');
+        const previewBio = $('[data-preview-bio]');
+        const previewAvatar = $('[data-preview-avatar]');
+        const handle = $('.preview-handle');
+
+        function updateName() {
+            if (!nameInput) return;
+            const val = nameInput.value.trim();
+            if (!val) return;
+            if (previewName) previewName.textContent = val;
+            if (previewAvatar) previewAvatar.textContent = val.charAt(0).toUpperCase();
+        }
+        function updateBio() {
+            if (!bioInput) return;
+            const val = bioInput.value.trim();
+            if (previewBio) previewBio.textContent = val || 'Your bio will appear here.';
+        }
+        function updateUsername() {
+            if (!usernameInput || !handle) return;
+            const val = usernameInput.value.trim();
+            if (!val) return;
+            handle.textContent = '@' + val;
+        }
+        if (nameInput) nameInput.addEventListener('input', updateName);
+        if (bioInput)  bioInput.addEventListener('input', updateBio);
+        if (usernameInput) usernameInput.addEventListener('input', updateUsername);
+
+        // ----- Character counter for bio -----
+        const counter = $('[data-char-count-for]');
+        if (counter && bioInput) {
+            const max = parseInt(bioInput.getAttribute('maxlength'), 10) || 280;
+
+            function count() {
+                const len = bioInput.value.length;
+                counter.textContent = len + ' / ' + max;
+                counter.classList.toggle('is-near', len > max * 0.9);
+            }
+            bioInput.addEventListener('input', count);
+            count();
+        }
+
+        // ----- Avatar upload preview -----
+        const avatarInput = $('#id_avatar');
+        if (avatarInput && previewAvatar) {
+            avatarInput.addEventListener('change', function () {
+                const file = avatarInput.files && avatarInput.files[0];
+                if (!file || !/^image\//.test(file.type)) return;
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewAvatar.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = '';
+                    previewAvatar.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ----- Auto-grow textarea -----
+        $all('textarea').forEach(function (ta) {
+            function grow() {
+                ta.style.height = 'auto';
+                ta.style.height = Math.min(ta.scrollHeight, 320) + 'px';
+            }
+            ta.addEventListener('input', grow);
+            grow();
+        });
+    })();
+</script>
+{% endblock %}
