@@ -158,6 +158,146 @@
     margin-top: 20px;
 }
 
+/* ---- Writing list ---- */
+.profile-post-list {
+    border-top: 1px solid var(--line);
+}
+
+.profile-post {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 160px;
+    gap: 32px;
+    align-items: start;
+    padding: 30px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.profile-post:last-child {
+    border-bottom: 0;
+}
+
+.profile-post-copy {
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.profile-post-title {
+    margin: 10px 0 8px;
+    font: 600 clamp(22px, 2.4vw, 28px) / 1.2 var(--serif);
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+}
+
+.profile-post-title a {
+    transition: color var(--ease);
+}
+
+.profile-post-title a:hover {
+    color: var(--orange);
+}
+
+.profile-post-excerpt {
+    max-width: 56ch;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+/* meta row: date · tags */
+.profile-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    color: var(--faint);
+    font: 11px var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.profile-post-date {
+    white-space: nowrap;
+}
+
+.profile-post-sep {
+    color: var(--line-dark);
+}
+
+/* tags — separated by CSS dots, no template gymnastics */
+.profile-post-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-post-tag {
+    color: var(--muted);
+    border-bottom: 1px solid transparent;
+    transition: color var(--ease), border-color var(--ease);
+}
+
+.profile-post-tag + .profile-post-tag::before {
+    content: "·";
+    margin: 0 2px;
+    color: var(--line-dark);
+    border: 0;
+}
+
+.profile-post-tag:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+}
+
+/* visual / thumbnail */
+.profile-post-visual {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--paper-strong);
+    border: 1px solid var(--line);
+    transition: border-color var(--ease);
+}
+
+.profile-post-visual:hover {
+    border-color: var(--ink);
+}
+
+.profile-post-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--ease);
+}
+
+.profile-post-visual:hover img {
+    transform: scale(1.03);
+}
+
+/* placeholder mark — mirrors the empty-state icon */
+.profile-post-placeholder-mark {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    align-items: end;
+    width: 44px;
+    height: 44px;
+    margin: auto;
+}
+
+.profile-post-placeholder-mark i {
+    display: block;
+    height: 100%;
+    background: var(--line-dark);
+}
+
+.profile-post-placeholder-mark i:nth-child(2) { height: 73%; background: var(--orange); opacity: .55; }
+.profile-post-placeholder-mark i:nth-child(3) { height: 45%; background: var(--acid);  opacity: .7;  }
+
+
 /* ============================================================
    Responsive
    ============================================================ */
@@ -204,5 +344,16 @@
         align-items: flex-start;
         gap: 18px;
         padding: 30px 0;
+    }
+    .profile-post {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        padding: 22px 0;
+    }
+
+    .profile-post-visual {
+        order: -1;
+        width: 100%;
+        height: 160px;
     }
 }

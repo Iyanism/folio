@@ -1,10 +1,11 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_list_or_404
 
-from accounts.forms import SignupForm, ProfileForm, UsernameSetupForm, OnboardingForm
+from accounts.forms import OnboardingForm, ProfileForm, SignupForm, UsernameSetupForm
 from accounts.models import UserProfile
+from blogs.models import Post
 
 
 def signup(request: HttpRequest):
@@ -23,8 +24,23 @@ def signup(request: HttpRequest):
 @login_required
 def profile(request: HttpRequest):
     # Safe lookup: get_or_create prevents crashes if signal missed
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-    return render(request, "accounts/profile.html", {"profile": user_profile})
+    user_profile, created = UserProfile.objects.prefetch_related("user").get_or_create(
+        user=request.user
+    )
+    posts = (
+        Post.objects.filter(author=user_profile.user)
+        .select_related("author__profile")
+        .prefetch_related("tags")
+        .order_by("-publish_date")
+    )
+    return render(
+        request,
+        "accounts/profile.html",
+        {
+            "profile": user_profile,
+            "posts": posts,
+        },
+    )
 
 
 @login_required
@@ -58,6 +74,7 @@ def onboarding_username(request: HttpRequest):
         form = UsernameSetupForm(instance=user_profile)
 
     return render(request, "accounts/onboarding_username.html", {"form": form})
+
 
 @login_required
 def onboarding(request: HttpRequest):

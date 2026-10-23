@@ -12,8 +12,8 @@
 {% block content %}
 {% with name=profile.display_name|default:profile.username %}
 {# Both URL names below are guesses. If a name does not exist, `as` leaves the variable empty and the button is simply not rendered. #}
-{% url 'profile_edit' as edit_url %}
-{% url 'write' as write_url %}
+{% url 'edit_profile' as edit_url %}
+{% url 'post_new' as write_url %}
 
 <div class="profile">
 
@@ -58,25 +58,84 @@
         </div>
     </header>
 
-    <section class="profile-writing" aria-labelledby="stories-title">
+        <section class="profile-writing" aria-labelledby="stories-title">
         <div class="section-heading">
             <h2 id="stories-title">Writing</h2>
-            <span class="count">Coming soon</span>
+            <span class="count">
+                {% if posts %}
+                    {{ posts|length }} stor{{ posts|length|pluralize:"y,ies" }}
+                {% else %}
+                    Nothing yet
+                {% endif %}
+            </span>
         </div>
 
-        <div class="profile-empty">
-            <span class="profile-empty-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-            <div>
-                {% if request.user.is_authenticated and profile.user_id == request.user.id %}
-                    <p class="profile-empty-title">Your first story starts here.</p>
-                    <p class="profile-empty-text">Write down something you figured out or a question you can’t stop thinking about. It will appear on this page.</p>
-                    {% if write_url %}<a class="btn btn-primary" href="{{ write_url }}">Write a story</a>{% endif %}
-                {% else %}
-                    <p class="profile-empty-title">Nothing published yet.</p>
-                    <p class="profile-empty-text">Stories by {{ name }} will appear here.</p>
+        {% if posts %}
+            <ul class="profile-post-list">
+    {% for post in posts %}
+        <li class="profile-post">
+            <div class="profile-post-copy">
+                <div class="eyebrow">
+                    {{ post.tag_line|default:"Story" }} · {{ post.read_minutes }} min read
+                </div>
+
+                <h3 class="profile-post-title">
+                    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                </h3>
+
+                {% if post.subtitle %}
+                    <p class="profile-post-excerpt">{{ post.subtitle }}</p>
                 {% endif %}
+
+                <div class="profile-post-meta">
+                    <time class="profile-post-date" datetime="{{ post.publish_date|date:'c' }}">
+                        {{ post.publish_date|date:"M j, Y" }}
+                    </time>
+
+                    {% with tags=post.tags.all %}
+                        {% if tags %}
+                            <span class="profile-post-sep" aria-hidden="true">·</span>
+                            <span class="profile-post-tags">
+                                {% for tag in tags %}
+                                    <a class="profile-post-tag"
+                                       href="{% url 'home' %}?tag={{ tag.slug }}#latest">
+                                        {{ tag.name }}
+                                    </a>
+                                {% endfor %}
+                            </span>
+                        {% endif %}
+                    {% endwith %}
+                </div>
             </div>
-        </div>
+
+            <a class="profile-post-visual{% if not post.cover_url %} is-placeholder{% endif %}"
+               href="{{ post.get_absolute_url }}"
+               tabindex="-1"
+               aria-hidden="true">
+                {% if post.cover_url %}
+                    <img src="{{ post.cover_url }}" alt="" loading="lazy">
+                {% else %}
+                    <span class="profile-post-placeholder-mark"><i></i><i></i><i></i></span>
+                {% endif %}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+        {% else %}
+            <div class="profile-empty">
+                <span class="profile-empty-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+                <div>
+                    {% if request.user.is_authenticated and profile.user_id == request.user.id %}
+                        <p class="profile-empty-title">Your first story starts here.</p>
+                        <p class="profile-empty-text">Write down something you figured out or a question you can’t stop thinking about. It will appear on this page.</p>
+                        {% if write_url %}<a class="btn btn-primary" href="{{ write_url }}">Write a story</a>{% endif %}
+                    {% else %}
+                        <p class="profile-empty-title">Nothing published yet.</p>
+                        <p class="profile-empty-text">Stories by {{ name }} will appear here.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     </section>
 
 </div>
