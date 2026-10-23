@@ -15,9 +15,14 @@
 {% block footer %}{% endblock %}
 
 {% block content %}
-{# Works with or without a Django form. With one, name the fields title, subtitle and body. #}
-<form class="editor" data-editor method="post" action="">
+<form class="editor" data-editor method="post" action="" novalidate>
     {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="message message--error" role="alert">
+            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+    {% endif %}
 
     <div class="editor-bar">
         <div class="editor-tools" data-tools role="toolbar" aria-label="Formatting" hidden></div>
@@ -31,19 +36,31 @@
     <div class="editor-page">
         <p class="eyebrow">New story</p>
 
-        <label class="sr-only" for="title">Title</label>
-        <textarea class="editor-field editor-title" id="title" name="title" rows="2" maxlength="140" placeholder="Title" required>{{ form.title.value|default:"" }}</textarea>
+        <label class="sr-only" for="{{ form.title.id_for_label }}">Title</label>
+        {{ form.title }}
         {% for error in form.title.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
 
-        <label class="sr-only" for="subtitle">Subtitle</label>
-        <textarea class="editor-field editor-subtitle" id="subtitle" name="subtitle" rows="2" maxlength="240" placeholder="A subtitle: one or two sentences that tell readers what to expect">{{ form.subtitle.value|default:"" }}</textarea>
+        <label class="sr-only" for="{{ form.subtitle.id_for_label }}">Subtitle</label>
+        {{ form.subtitle }}
         {% for error in form.subtitle.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
 
         <hr class="editor-rule" />
 
-        <label class="sr-only" for="body">Story</label>
-        <textarea class="editor-field editor-body" id="body" name="body" rows="14" placeholder="Tell the story. Start with what you figured out, or the question you could not stop thinking about." required>{{ form.body.value|default:"" }}</textarea>
+        <label class="sr-only" for="{{ form.body.id_for_label }}">Story</label>
+        {{ form.body }}
         {% for error in form.body.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+        <fieldset class="editor-meta">
+            <legend class="field-label">Tags</legend>
+            <div class="topic-cloud">{{ form.tags }}</div>
+            {% for error in form.tags.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <label class="field">
+            <span class="field-label">Cover image URL</span>
+            {{ form.cover_url }}
+            {% for error in form.cover_url.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        </label>
 
         <details class="editor-guide">
             <summary>Formatting guide</summary>
@@ -66,73 +83,133 @@
 <script>
     /* Optional. The form works without this: it adds auto-sizing, a word count and a formatting toolbar. */
     (function () {
-        var form = document.querySelector("[data-editor]");
+        const form = document.querySelector("[data-editor]");
         if (!form) return;
-        var title = form.querySelector("#title");
-        var sub = form.querySelector("#subtitle");
-        var body = form.querySelector("#body");
-        var fields = [title, sub, body];
 
-        function grow(el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
-        function count() {
-            var n = (body.value.match(/\S+/g) || []).length;
-            form.querySelector("[data-wc]").textContent =
-                n ? n + (n === 1 ? " word" : " words") + " · " + Math.max(1, Math.ceil(n / 200)) + " min read" : "";
+        const title = form.querySelector("#title");
+        const sub = form.querySelector("#subtitle");
+        const body = form.querySelector("#body");
+        const wc = form.querySelector("[data-wc]");
+        const tools = form.querySelector("[data-tools]");
+        const fields = [title, sub, body].filter(Boolean);
+
+        function grow(el) {
+            el.style.height = "auto";
+            el.style.height = el.scrollHeight + "px";
         }
-        function fire() { body.dispatchEvent(new Event("input")); }
 
-        fields.forEach(function (el) { grow(el); el.addEventListener("input", function () { grow(el); }); });
-        body.addEventListener("input", count);
+        function count() {
+            if (!body || !wc) return;
+            const n = (body.value.match(/\S+/g) || []).length;
+            wc.textContent = n
+                ? n + (n === 1 ? " word" : " words") + " · " + Math.max(1, Math.ceil(n / 200)) + " min read"
+                : "";
+        }
+
+        function fire() {
+            if (body) body.dispatchEvent(new Event("input"));
+        }
+
+        fields.forEach((el) => {
+            grow(el);
+            el.addEventListener("input", () => grow(el));
+        });
+        if (body) body.addEventListener("input", count);
         count();
-        window.addEventListener("resize", function () { fields.forEach(grow); });
-        title.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); sub.focus(); } });
-        sub.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); body.focus(); } });
+        window.addEventListener("resize", () => fields.forEach(grow));
 
+        if (title && sub) {
+            title.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    sub.focus();
+                }
+            });
+        }
+        if (sub && body) {
+            sub.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    body.focus();
+                }
+            });
+        }
+
+        // ---- Markdown helpers (body only) ----
         function wrap(a, b, ph) {
-            var s = body.selectionStart, e = body.selectionEnd, sel = body.value.slice(s, e) || ph;
+            const s = body.selectionStart;
+            const e = body.selectionEnd;
+            const sel = body.value.slice(s, e) || ph;
             body.setRangeText(a + sel + b, s, e, "end");
             body.setSelectionRange(s + a.length, s + a.length + sel.length);
-            body.focus(); fire();
+            body.focus();
+            fire();
         }
+
         function prefix(p) {
-            var v = body.value, s = body.selectionStart, e = body.selectionEnd;
-            var ls = v.lastIndexOf("\n", s - 1) + 1, le = v.indexOf("\n", e);
+            const v = body.value;
+            const s = body.selectionStart;
+            const e = body.selectionEnd;
+            const ls = v.lastIndexOf("\n", s - 1) + 1;
+            let le = v.indexOf("\n", e);
             if (le < 0) le = v.length;
-            body.setRangeText(v.slice(ls, le).split("\n").map(function (x) { return p + x; }).join("\n"), ls, le, "end");
-            body.focus(); fire();
+            const block = v.slice(ls, le).split("\n").map((x) => p + x).join("\n");
+            body.setRangeText(block, ls, le, "end");
+            body.focus();
+            fire();
         }
-        function link() {
-            var s = body.selectionStart, e = body.selectionEnd, sel = body.value.slice(s, e) || "link text";
+
+        function insertLink() {
+            const s = body.selectionStart;
+            const e = body.selectionEnd;
+            const sel = body.value.slice(s, e) || "link text";
             body.setRangeText("[" + sel + "](https://)", s, e, "end");
-            var u = s + sel.length + 3;
+            const u = s + sel.length + 3;
             body.setSelectionRange(u, u + 8);
-            body.focus(); fire();
+            body.focus();
+            fire();
         }
-        var ACT = {
-            bold: function () { wrap("**", "**", "bold text"); },
-            italic: function () { wrap("*", "*", "italic text"); },
-            h2: function () { prefix("## "); },
-            quote: function () { prefix("> "); },
-            list: function () { prefix("- "); },
-            link: link,
-            code: function () { wrap("`", "`", "code"); }
+
+        const ACT = {
+            bold: () => wrap("**", "**", "bold text"),
+            italic: () => wrap("*", "*", "italic text"),
+            h2: () => prefix("## "),
+            quote: () => prefix("> "),
+            list: () => prefix("- "),
+            link: insertLink,
+            code: () => wrap("`", "`", "code"),
         };
-        var defs = [["B", "Bold (Ctrl+B)", "bold"], ["I", "Italic (Ctrl+I)", "italic"], ["H", "Heading", "h2"], ["Quote", "Pull quote", "quote"], ["List", "Bulleted list", "list"], ["Link", "Link (Ctrl+K)", "link"], ["Code", "Inline code", "code"]];
-        var tools = form.querySelector("[data-tools]");
-        defs.forEach(function (d) {
-            var b = document.createElement("button");
-            b.type = "button"; b.textContent = d[0]; b.title = d[1]; b.setAttribute("aria-label", d[1]);
-            b.addEventListener("click", ACT[d[2]]);
-            tools.appendChild(b);
-        });
-        tools.hidden = false;
-        body.addEventListener("keydown", function (e) {
-            if (!(e.ctrlKey || e.metaKey)) return;
-            var k = e.key.toLowerCase();
-            if (k === "b") { e.preventDefault(); ACT.bold(); }
-            else if (k === "i") { e.preventDefault(); ACT.italic(); }
-            else if (k === "k") { e.preventDefault(); ACT.link(); }
-        });
+
+        const defs = [
+            ["B", "Bold (Ctrl+B)", "bold"],
+            ["I", "Italic (Ctrl+I)", "italic"],
+            ["H", "Heading", "h2"],
+            ["Quote", "Pull quote", "quote"],
+            ["List", "Bulleted list", "list"],
+            ["Link", "Link (Ctrl+K)", "link"],
+            ["Code", "Inline code", "code"],
+        ];
+
+        if (tools && body) {
+            defs.forEach(([label, title, action]) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.textContent = label;
+                b.title = title;
+                b.setAttribute("aria-label", title);
+                b.addEventListener("click", ACT[action]);
+                tools.appendChild(b);
+            });
+            tools.hidden = false;
+
+            body.addEventListener("keydown", (e) => {
+                if (!(e.ctrlKey || e.metaKey)) return;
+                const k = e.key.toLowerCase();
+                if (k === "b") { e.preventDefault(); ACT.bold(); }
+                else if (k === "i") { e.preventDefault(); ACT.italic(); }
+                else if (k === "k") { e.preventDefault(); ACT.link(); }
+            });
+        }
     })();
 </script>
 {% endblock %}

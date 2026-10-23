@@ -340,6 +340,72 @@
     padding-left: 12px;
 }
 
+/* ---- Collapsible thread ---- */
+.thread {
+    margin: 2px 0 0 -8px;
+}
+
+.thread-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    border-radius: 4px;
+    transition:
+        color var(--ease),
+        background var(--ease);
+}
+
+.thread-toggle:hover {
+    color: var(--ink);
+    background: var(--line);
+}
+
+.thread-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.thread-toggle .chevron {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--ease);
+    order: 2;
+}
+
+/* Chevron points right when collapsed, down when open */
+.thread:not([open]) .thread-toggle .chevron {
+    transform: rotate(-90deg);
+}
+
+/* Show only one label at a time */
+.thread-label-hide {
+    display: none;
+}
+
+.thread[open] .thread-label-hide {
+    display: inline;
+}
+.thread[open] .thread-label-show {
+    display: none;
+}
+
+/* Indent replies under the comment, aligned with the text (not the avatar) */
+.thread > .replies {
+    margin: 4px 0 0 38px;
+    padding-left: 16px;
+    border-left: 1px solid var(--line-dark);
+}
+
 @media (max-width: 720px) {
     .post {
         padding: 48px 0 72px;

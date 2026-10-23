@@ -1,0 +1,73 @@
+<li class="comment" id="c{{ comment.pk }}">
+    <div class="comment-head">
+        <span class="avatar ava-blue" aria-hidden="true">
+            {{ comment.user.profile.display_name|default:comment.user.email|slice:":1"|upper }}
+        </span>
+        <strong>{{ comment.user.profile.display_name|default:comment.user.email }}</strong>
+        <span class="comment-when">{{ comment.created_at|timesince }} ago</span>
+    </div>
+
+    <p class="comment-text">{{ comment.body }}</p>
+
+    <div class="comment-actions">
+        <form method="post" class="inline-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="like_comment" />
+            <input type="hidden" name="comment" value="{{ comment.pk }}" />
+            <input type="hidden" name="anchor" value="c{{ comment.pk }}" />
+            <button class="mini{% if comment.is_liked %} is-on{% endif %}"
+                    type="submit"
+                    aria-pressed="{% if comment.is_liked %}true{% else %}false{% endif %}"
+                    aria-label="Like this comment by {{ comment.user.profile.display_name|default:comment.user.email }}">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path>
+                </svg>
+                <span>{{ comment.likes.count }}</span>
+            </button>
+        </form>
+
+        <details class="reply">
+            <summary class="mini">Reply</summary>
+            {% if request.user.is_authenticated %}
+                <form method="post" class="reply-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent" value="{{ comment.pk }}" />
+                    <label class="sr-only" for="reply-{{ comment.pk }}">Reply to {{ comment.user.profile.display_name|default:comment.user.email }}</label>
+                    <textarea id="reply-{{ comment.pk }}" name="body" rows="3"
+                              placeholder="Reply to {{ comment.user.profile.display_name|default:comment.user.email }}"
+                              required></textarea>
+                    <button class="btn btn-primary" type="submit">Post reply</button>
+                </form>
+            {% else %}
+                <p class="reply-signin">
+                    <a class="text-link" href="{% url 'login' %}?next={{ request.path }}">Sign in</a> to reply.
+                </p>
+            {% endif %}
+        </details>
+    </div>
+
+    {# ── Replies, collapsed/expanded via native <details> ── #}
+    {% with replies=comment.replies.all %}
+    {% if replies %}
+    <details class="thread">
+        <summary class="thread-toggle">
+            <svg class="icon chevron" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+            <span class="thread-label thread-label-show">
+                {{ replies|length }} {{ replies|length|pluralize:"reply,replies" }}
+            </span>
+            <span class="thread-label thread-label-hide">
+                Hide {{ replies|length }} {{ replies|length|pluralize:"reply,replies" }}
+            </span>
+        </summary>
+
+        <ul class="replies">
+            {% for reply in replies %}
+                {% include "blogs/_comment.html" with comment=reply %}
+            {% endfor %}
+        </ul>
+    </details>
+    {% endif %}
+    {% endwith %}
+</li>
