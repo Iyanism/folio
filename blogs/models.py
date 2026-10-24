@@ -84,13 +84,28 @@ class Comment(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes", blank=True, null=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, blank=True, null=True ,related_name="likes")
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True, related_name="likes", )
     liked_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["user", "post"], name="unique_like"),
+            models.UniqueConstraint(fields=["user", "post"], name="unique_post_like"),
+            models.UniqueConstraint(fields=["user", "comment"], name="unique_comment_like"),
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.post}"
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookmarks")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="bookmarks")
+    bookmark_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "post"], name="unique_bookmark"),
         ]
 
     def __str__(self):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from blogs.models import Comment, Like, Post, Tag
+from blogs.models import Comment, Like, Post, Tag, Bookmark
 
 
 # Register your models here.
@@ -21,4 +21,8 @@ class LikeAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Bookmark)
+class BookmarkAdmin(admin.ModelAdmin):
     pass
