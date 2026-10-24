@@ -4,20 +4,20 @@
             {{ comment.user.profile.display_name|default:comment.user.email|slice:":1"|upper }}
         </span>
         <strong>{{ comment.user.profile.display_name|default:comment.user.email }}</strong>
-        <span class="comment-when">{{ comment.created_at|timesince }} ago</span>
+        <span class="comment-when">{{ comment.comment_at|timesince }} ago</span>
     </div>
 
     <p class="comment-text">{{ comment.body }}</p>
 
     <div class="comment-actions">
-        <form method="post" class="inline-form">
+        <form method="post" class="inline-form" action="{% url 'comment_like' post.slug comment.pk %}">
             {% csrf_token %}
             <input type="hidden" name="action" value="like_comment" />
             <input type="hidden" name="comment" value="{{ comment.pk }}" />
             <input type="hidden" name="anchor" value="c{{ comment.pk }}" />
-            <button class="mini{% if comment.is_liked %} is-on{% endif %}"
+            <button class="mini{% if comment.pk in liked_comment_ids %} is-on{% endif %}"
                     type="submit"
-                    aria-pressed="{% if comment.is_liked %}true{% else %}false{% endif %}"
+                    aria-pressed="{% if comment.id in liked_comment_ids %}true{% else %}false{% endif %}"
                     aria-label="Like this comment by {{ comment.user.profile.display_name|default:comment.user.email }}">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path>
@@ -29,7 +29,7 @@
         <details class="reply">
             <summary class="mini">Reply</summary>
             {% if request.user.is_authenticated %}
-                <form method="post" class="reply-form">
+                <form method="post" class="reply-form" action="{% url 'post_comment' post.slug %}">
                     {% csrf_token %}
                     <input type="hidden" name="parent" value="{{ comment.pk }}" />
                     <label class="sr-only" for="reply-{{ comment.pk }}">Reply to {{ comment.user.profile.display_name|default:comment.user.email }}</label>

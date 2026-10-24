@@ -170,6 +170,37 @@
     fill: currentColor;
 }
 
+.bookmark {
+    margin-left: auto;
+    border: 0;
+    background: transparent;
+    color: var(--faint);
+    cursor: pointer;
+    display: inline-flex;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.bookmark:hover {
+    color: var(--ink);
+    transform: translateY(-1px);
+}
+
+.bookmark.saved {
+    color: var(--orange);
+}
+
+.bookmark.saved .bookmark-outline {
+    display: none;
+}
+
+.bookmark .bookmark-filled {
+    display: none;
+}
+
+.bookmark.saved .bookmark-filled {
+    display: block;
+}
+
 .share {
     position: relative;
 }
