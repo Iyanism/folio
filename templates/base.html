@@ -37,15 +37,10 @@
 
                 {% block nav_links %}
                 <nav class="primary-nav" aria-label="Primary navigation">
-                    <a
-                        href="#"
-                        class="{% if request.resolver_match.url_name == 'latest' %}active{% endif %}"
-                        >Latest</a
-                    >
-                    <a href="#">Topics</a>
-                    <a href="#">The Signal</a>
+                    <a href="/bookmarks">Bookmarks</a>
                 </nav>
-                {% endblock %} {% block header_actions %}
+                {% endblock %}
+                {% block header_actions %}
                 <div class="header-actions">
                     <button
                         class="header-search"
