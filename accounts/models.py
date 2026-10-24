@@ -51,3 +51,19 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.display_name or self.username or self.user.email
+
+class Following(models.Model):
+    followed = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers")
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followings")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["followed", "follower"], name="unique_follower"
+            ),
+            models.CheckConstraint(
+                name="check_follower",
+                condition=~models.Q(followed=models.F("follower"))
+            )
+        ]

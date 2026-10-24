@@ -1,10 +1,11 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
-from django.shortcuts import redirect, render, get_list_or_404
+from django.shortcuts import redirect, render, get_object_or_404
+from django.views.decorators.http import require_POST
 
 from accounts.forms import OnboardingForm, ProfileForm, SignupForm, UsernameSetupForm
-from accounts.models import UserProfile
+from accounts.models import UserProfile, User, Following
 from blogs.models import Post
 
 
@@ -95,3 +96,17 @@ def onboarding(request: HttpRequest):
         form = OnboardingForm(instance=user_profile)
 
     return render(request, "accounts/onboarding.html", {"form": form})
+
+@login_required
+@require_POST
+def following(request: HttpRequest, pk):
+    target = get_object_or_404(User, pk=pk)
+    if target == request.user:
+        return redirect(request.build_absolute_uri())
+    follow, created = Following.objects.get_or_create(followed=target, follower=request.user)
+    if not created:
+        follow.delete()
+    referred = request.headers.get("Referer")
+    if referred:
+        return redirect(referred)
+    return redirect("home")
