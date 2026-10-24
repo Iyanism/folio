@@ -88,7 +88,7 @@ def onboarding(request: HttpRequest):
         form = OnboardingForm(request.POST, instance=user_profile)
         if form.is_valid():
             user_profile = form.save(commit=False)
-            user_profile.onboarding_completed = False
+            user_profile.onboarding_completed = True
             user_profile.save()
             return redirect("home")
     else:
