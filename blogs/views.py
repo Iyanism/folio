@@ -1,53 +1,45 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
 from django.http.request import HttpRequest
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+from django.http.response import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect, render, get_list_or_404
 from django.views.decorators.http import require_POST
 
 from blogs.forms import CommentForm, PostForm
-from blogs.models import Comment, Like, Post, Tag
+from blogs.models import Comment, Like, Post, Tag, Bookmark
+from accounts.models import Following
+from blogs.queries import get_base_posts, apply_feed, get_followed_ids, apply_tag, apply_query, get_featured_posts, \
+    get_trending_posts, get_latest_posts, get_mini_posts, get_bookmark_post_ids
 
 
-@login_required
 def index(request: HttpRequest):
-    base_posts = Post.objects.select_related("author__profile").prefetch_related("tags")
+    base_posts = get_base_posts()
+    tags = Tag.objects.all()
     filtered_posts = base_posts
 
+    # filters
     query = request.GET.get("q")
     tag_slug = request.GET.get("tag")
+    feed = request.GET.get("feed", "for_you")
 
-    if tag_slug:
-        filtered_posts = filtered_posts.filter(tags__slug=tag_slug)
+    # set of author user follow
+    followed_ids = get_followed_ids(request.user)
+    bookmark_posts = get_bookmark_post_ids(request.user)
 
-    if query:
-        filtered_posts = filtered_posts.filter(
-            Q(title__icontains=query)
-            | Q(subtitle__icontains=query)
-            | Q(body__icontains=query)
-            | Q(tags__name__icontains=query)
-            | Q(author__profile__username__icontains=query)
-            | Q(author__profile__display_name__icontains=query)
-        ).distinct()
+    # global posts
+    featured = get_featured_posts(base_posts)
+    trending = get_trending_posts(base_posts)
+    latest_posts = get_latest_posts(base_posts, limit=4)
+    mini_ideas = get_mini_posts(base_posts, limit=3)
 
-    featured = (
-        base_posts.annotate(num_likes=Count("likes", distinct=True))
-        .order_by("-num_likes", "-publish_date")
-        .first()
-    )
-    trending = base_posts.annotate(
-        num_likes=Count("likes", distinct=True),
-        num_comments=Count("comments", distinct=True),
-    ).order_by("-num_likes", "-num_comments", "-publish_date")[:3]
-    latest_posts = list(base_posts.order_by("-publish_date")[:4])
+    filtered_posts = apply_feed(filtered_posts, feed, request.user.is_authenticated, followed_ids)
+    filtered_posts = apply_tag(filtered_posts, tag_slug)
+    filtered_posts = apply_query(filtered_posts, query)
 
-    feed = filtered_posts
+    feed_post = filtered_posts
     if featured:
-        feed = feed.exclude(pk=featured.pk)
-    posts = list(feed.order_by("-publish_date"))
+        feed_post = feed_post.exclude(pk=featured.pk)
+    posts = list(feed_post)
 
-    tags = Tag.objects.all()
-    mini_ideas = list(base_posts.order_by("-publish_date")[:3])
     return render(
         request,
         "blogs/home.html",
@@ -58,48 +50,53 @@ def index(request: HttpRequest):
             "posts": posts,
             "tags": tags,
             "mini_ideas": mini_ideas,
-            # handy for the template to show "results for X"
+            "is_following": followed_ids,
             "active_tag": tag_slug,
             "search_query": query,
+            "feed": feed,
+            "bookmark_posts": bookmark_posts,
         },
     )
 
 
-@login_required
 def post_details(request: HttpRequest, slug: str):
     post = get_object_or_404(
-        Post.objects.select_related("author__profile").prefetch_related("likes"),
+        Post.objects.select_related("author__profile").prefetch_related("likes", "bookmarks", "tags"),
         slug=slug,
     )
 
-    is_liked = False
-    if request.user.is_authenticated:
-        is_liked = post.likes.filter(user=request.user).exists()
-
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            parent_id = request.POST.get("parent")
-            if parent_id:
-                comment.parent = get_object_or_404(Comment, pk=parent_id, post=post)
-            comment.user = request.user
-            comment.post = post
-            comment.save()
-            return redirect(f"{post.get_absolute_url()}#comments")
-    else:
-        form = CommentForm()
+    form = CommentForm()
 
     comments = (
         post.comments.filter(parent__isnull=True)
         .select_related("user__profile")
-        .prefetch_related("replies__user__profile")
-    )
+        .prefetch_related("replies__user__profile", "likes", "replies__likes")
+    ).order_by("-comment_at")
+
+    is_following = False
+    is_post_liked = False
+    is_bookmarked = False
+    liked_comment_ids = set()
+    if request.user.is_authenticated:
+        is_following = Following.objects.filter(
+            follower=request.user, followed=post.author
+        ).exists()
+        is_post_liked = post.likes.filter(user=request.user).exists()
+        is_bookmarked = post.bookmarks.filter(user=request.user).exists()
+        liked_comment_ids = set(post.comments.filter(likes__user=request.user).values_list("id", flat=True))
 
     return render(
         request,
         "blogs/post_details.html",
-        {"post": post, "is_liked": is_liked, "form": form, "comments": comments},
+        {
+            "post": post,
+            "is_post_liked": is_post_liked,
+            "form": form,
+            "comments": comments,
+            "is_following": is_following,
+            "liked_comment_ids": liked_comment_ids,
+            "is_bookmarked": is_bookmarked,
+        },
     )
 
 
@@ -110,14 +107,70 @@ def post_new(request: HttpRequest):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
             post.save()
             form.save_m2m()
-            redirect(post.get_absolute_url())
+            return redirect(post.get_absolute_url())
     else:
         form = PostForm()
 
     return render(request, "blogs/editor.html", {"form": form})
+
+@login_required
+def bookmarks_home(request: HttpRequest):
+    posts_ids = get_bookmark_post_ids(request.user)
+    followed_ids = get_followed_ids(request.user)
+    posts = get_base_posts().filter(id__in=posts_ids)
+    tags = Tag.objects.all()
+
+    # feed filters
+    query = request.GET.get("q")
+    tag_slug = request.GET.get("tag")
+    feed = request.GET.get("feed", "for_you")
+
+    filtered_posts = apply_feed(posts, feed, request.user.is_authenticated, followed_ids)
+    filtered_posts = apply_tag(filtered_posts, tag_slug)
+    filtered_posts = apply_query(filtered_posts, query)
+    posts = list(filtered_posts)
+
+    return render(
+        request,
+        "blogs/bookmarks.html",
+        {
+            "posts": posts,
+            "is_following": followed_ids,
+            "tags": tags,
+            "active_tag": tag_slug,
+            "search_query": query,
+            "feed": feed,
+            "bookmark_posts": posts_ids,
+        }
+    )
+
+@login_required
+@require_POST
+def post_bookmark(request: HttpRequest, slug: str):
+    post = get_object_or_404(Post, slug=slug)
+    bookmark, created = Bookmark.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        bookmark.delete()
+    return redirect(request.build_absolute_uri())
+
+@login_required
+@require_POST
+def post_comment(request: HttpRequest, slug: str):
+    post = get_object_or_404(Post, slug=slug)
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.post = post
+        comment.user = request.user
+        parent_id = request.POST.get("parent")
+        if parent_id:
+            comment.parent = get_object_or_404(Comment, pk=parent_id, post=post)
+        comment.save()
+        return redirect(f"{post.get_absolute_url()}#comments")
+    else:
+        return HttpResponseBadRequest(form.errors)
 
 
 @login_required
@@ -132,9 +185,10 @@ def post_like(request: HttpRequest, slug: str):
 
 @login_required
 @require_POST
-def comment_like(request: HttpRequest, pk):
+def comment_like(request: HttpRequest, slug, pk):
+    post = get_object_or_404(Post, slug=slug)
     comment = get_object_or_404(Comment, pk=pk)
     like, created = Like.objects.get_or_create(comment=comment, user=request.user)
     if not created:
         like.delete()
-    return redirect("post_details", slug=comment.post.slug)
+    return redirect(post.get_absolute_url())
