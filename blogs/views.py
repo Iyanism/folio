@@ -1,3 +1,4 @@
+import math
 from django.contrib.auth.decorators import login_required
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseBadRequest
@@ -15,6 +16,8 @@ def index(request: HttpRequest):
     base_posts = get_base_posts()
     tags = Tag.objects.all()
     filtered_posts = base_posts
+    followed_ids = set()
+    bookmark_posts = set()
 
     # filters
     query = request.GET.get("q")
@@ -22,8 +25,9 @@ def index(request: HttpRequest):
     feed = request.GET.get("feed", "for_you")
 
     # set of author user follow
-    followed_ids = get_followed_ids(request.user)
-    bookmark_posts = get_bookmark_post_ids(request.user)
+    if request.user.is_authenticated:
+        followed_ids = get_followed_ids(request.user)
+        bookmark_posts = get_bookmark_post_ids(request.user)
 
     # global posts
     featured = get_featured_posts(base_posts)
@@ -107,6 +111,7 @@ def post_new(request: HttpRequest):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
+            post.read_minutes = max(1, math.ceil(len(post.body.split()) / 230))
             post.save()
             form.save_m2m()
             return redirect(post.get_absolute_url())
@@ -153,17 +158,17 @@ def post_bookmark(request: HttpRequest, slug: str):
     bookmark, created = Bookmark.objects.get_or_create(user=request.user, post=post)
     if not created:
         bookmark.delete()
-    return redirect(request.build_absolute_uri())
+    return redirect("bookmarks_home")
 
 @login_required
 @require_POST
 def post_comment(request: HttpRequest, slug: str):
     post = get_object_or_404(Post, slug=slug)
     form = CommentForm(request.POST)
+    form.instance.post = post
+    form.instance.user = request.user
     if form.is_valid():
         comment = form.save(commit=False)
-        comment.post = post
-        comment.user = request.user
         parent_id = request.POST.get("parent")
         if parent_id:
             comment.parent = get_object_or_404(Comment, pk=parent_id, post=post)
@@ -185,10 +190,9 @@ def post_like(request: HttpRequest, slug: str):
 
 @login_required
 @require_POST
-def comment_like(request: HttpRequest, slug, pk):
-    post = get_object_or_404(Post, slug=slug)
-    comment = get_object_or_404(Comment, pk=pk)
+def comment_like(request: HttpRequest, pk: int):
+    comment = get_object_or_404(Comment.objects.select_related("post"), pk=pk)
     like, created = Like.objects.get_or_create(comment=comment, user=request.user)
     if not created:
         like.delete()
-    return redirect(post.get_absolute_url())
+    return redirect(comment.post.get_absolute_url())

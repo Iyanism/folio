@@ -35,7 +35,7 @@ class Post(models.Model):
         if not self.slug:
             base = slugify(self.title)[:140] or "post"
             self.slug = f"{base}-{uuid.uuid4().hex[:8]}"
-        self.read_minutes = max(1, math.ceil(len(self.body.split()) / 230))
+
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -51,7 +51,7 @@ class Tag(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name) or f"tag-{uuid.uuid4().hex[:8]}"
+            self.slug = slugify(self.name)[:50] or f"tag-{uuid.uuid4().hex[:8]}"
         return super().save(*args, **kwargs)
 
     def clean(self):
@@ -78,6 +78,10 @@ class Comment(models.Model):
     class Meta:
         ordering = ["comment_at"]
 
+    def clean(self):
+        if self.parent and self.parent.post_id != self.post_id:
+            raise ValidationError("Parent comment belongs to a different post.")
+
     def __str__(self):
         return f"{self.user} on {self.post}: {self.body[:40]}"
 
@@ -95,7 +99,9 @@ class Like(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user} - {self.post}"
+        if self.post_id:
+            return f"{self.user} - {self.post}"
+        return f"{self.user} - {self.comment}"
 
 
 class Bookmark(models.Model):
