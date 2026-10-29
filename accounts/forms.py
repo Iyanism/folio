@@ -5,15 +5,13 @@ from accounts.models import User, UserProfile
 
 
 class SignupForm(UserCreationForm):
-    username = None
-
     email = forms.EmailField(
         label="Email",
         widget=forms.EmailInput(
             attrs={
                 "placeholder": "you@example.com",
                 "autocomplete": "email",
-                "input mode": "email",
+                "inputmode": "email",
                 "autocapitalize": "off",
                 "spellcheck": "false",
                 "class": "email-field",
@@ -71,6 +69,12 @@ class ProfileForm(forms.ModelForm):
             ),
             "gender": forms.Select(attrs={"class": "gender-select"}),
         }
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        if not username:
+            raise forms.ValidationError("Please enter a username")
+        return username.strip().lower()
 
 
 class OnboardingForm(forms.ModelForm):

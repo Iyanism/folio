@@ -1,3 +1,5 @@
+import secrets
+
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
@@ -7,7 +9,6 @@ from django.views.decorators.http import require_POST
 from accounts.forms import OnboardingForm, ProfileForm, SignupForm, UsernameSetupForm
 from accounts.models import UserProfile, User, Following
 from blogs.models import Post
-
 
 def signup(request: HttpRequest):
     if request.method == "POST":
@@ -24,10 +25,7 @@ def signup(request: HttpRequest):
 
 @login_required
 def profile(request: HttpRequest):
-    # Safe lookup: get_or_create prevents crashes if signal missed
-    user_profile, created = UserProfile.objects.prefetch_related("user").get_or_create(
-        user=request.user
-    )
+    user_profile: UserProfile = get_object_or_404(UserProfile.objects.select_related("user"), user=request.user)
     posts = (
         Post.objects.filter(author=user_profile.user)
         .select_related("author__profile")
@@ -46,10 +44,10 @@ def profile(request: HttpRequest):
 
 @login_required
 def edit_profile(request: HttpRequest):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_profile: UserProfile = get_object_or_404(UserProfile, user=request.user)
 
     if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=user_profile)
+        form = ProfileForm(request.POST, instance=user_profile)
         if form.is_valid():
             form.save()
             return redirect("profile")
@@ -62,9 +60,6 @@ def edit_profile(request: HttpRequest):
 @login_required
 def onboarding_username(request: HttpRequest):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-
-    if user_profile.username:
-        return redirect("onboarding")
 
     if request.method == "POST":
         form = UsernameSetupForm(request.POST, instance=user_profile)
@@ -79,10 +74,12 @@ def onboarding_username(request: HttpRequest):
 
 @login_required
 def onboarding(request: HttpRequest):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_profile: UserProfile = get_object_or_404(UserProfile, user=request.user)
 
     if request.method == "POST":
         if "skip" in request.POST:
+            if not user_profile.username:
+                return redirect("onboarding_username")
             user_profile.onboarding_completed = True
             user_profile.save()
             return redirect("home")
@@ -99,10 +96,10 @@ def onboarding(request: HttpRequest):
 
 @login_required
 @require_POST
-def following(request: HttpRequest, pk):
-    target = get_object_or_404(User, pk=pk)
+def following(request: HttpRequest, pk: int):
+    target: User = get_object_or_404(User, pk=pk)
     if target == request.user:
-        return redirect(request.build_absolute_uri())
+        return redirect("home")
     follow, created = Following.objects.get_or_create(followed=target, follower=request.user)
     if not created:
         follow.delete()
